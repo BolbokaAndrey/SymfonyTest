@@ -10,10 +10,6 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
-use App\Repository\UserRepository;
-use App\Repository\RoleRepository;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Csrf\CsrfToken;
 
 final class SecurityController extends AbstractController
 {
@@ -44,7 +40,6 @@ final class SecurityController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         UserPasswordHasherInterface $passwordHasher,
-        RoleRepository $roleRepository
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('admin_index');
