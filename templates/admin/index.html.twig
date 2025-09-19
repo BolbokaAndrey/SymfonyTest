@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Админка{% endblock %}
+
+{% block stylesheets %}
+  <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">Панель администратора</div>
+      <nav class="nav">
+        <a href="{{ path('admin_index') }}">Главная</a>
+        <a href="{{ path('admin_users') }}">Пользователи</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <div class="top">
+        <div>
+          <div class="title">Добро пожаловать!</div>
+          <div class="badge">Вы вошли как {{ app.user.email }}</div>
+        </div>
+        <a class="btn" href="{{ path('logout') }}">Выйти</a>
+      </div>
+
+      <div class="card">
+        <p>Вы находитесь на главной странице админ-панели. Используйте меню слева для навигации.</p>
+      </div>
+    </main>
+  </div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Админка — {{ mode == 'edit' ? 'Редактировать' : 'Создать' }} пользователя{% endblock %}
+
+{% block stylesheets %}
+  <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">Панель администратора</div>
+      <nav class="nav">
+        <a href="{{ path('admin_index') }}">Главная</a>
+        <a href="{{ path('admin_users') }}">Пользователи</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <div class="top">
+        <div>
+          <div class="title">{{ mode == 'edit' ? 'Редактировать' : 'Создать' }} пользователя</div>
+          <div class="badge">Вы вошли как {{ app.user.email }}</div>
+        </div>
+        <div class="actions">
+          <a class="btn" href="{{ path('admin_users') }}">Назад</a>
+          <a class="btn" href="{{ path('logout') }}">Выйти</a>
+        </div>
+      </div>
+
+      <div class="card">
+        {% if error %}
+          <div class="danger">{{ error }}</div>
+        {% endif %}
+
+        <form method="post">
+          <div class="row">
+            <div class="field">
+              <label class="label" for="inputName">Имя</label>
+              <div class="control">
+                <input id="inputName" type="text" name="name" value="{{ userData.name|default('') }}" required>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="inputLastName">Фамилия</label>
+              <div class="control">
+                <input id="inputLastName" type="text" name="lastName" value="{{ userData.lastName|default('') }}">
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="inputEmail">Email</label>
+            <div class="control">
+              <input id="inputEmail" type="email" name="email" value="{{ userData.email|default('') }}" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="inputPassword">Пароль{% if mode == 'edit' %} (оставьте пустым, чтобы не менять){% endif %}</label>
+            <div class="control">
+              <input id="inputPassword" type="password" name="password" placeholder="Не менее 6 символов" {% if mode != 'edit' %}required{% endif %}>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="inputRole">Роль</label>
+            <div class="control">
+              <select id="inputRole" name="role_code" style="width:100%; background:transparent; border:none; outline:none; color:var(--text); font-size:14px;">
+                <option value="" {% if userData.role_code is not defined or userData.role_code is empty %}selected{% endif %} disabled>— выберите роль —</option>
+                {% for r in roles %}
+                  {% set disabled = (r.code == 'ROLE_SUPER_ADMIN' and not is_granted('ROLE_SUPER_ADMIN')) %}
+                  <option value="{{ r.code }}" {% if (userData.role_code|default('') == r.code) %}selected{% endif %} {% if disabled %}disabled{% endif %}>
+                    {{ r.nameRu }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="submit">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+{% endblock %}

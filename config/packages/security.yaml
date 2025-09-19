@@ -1,0 +1,36 @@
+security:
+  password_hashers:
+    App\Entity\User: 'auto'
+
+  role_hierarchy:
+    ROLE_CONTENT_MANAGER: [ROLE_USER]
+    ROLE_ADMIN: [ROLE_CONTENT_MANAGER]
+    ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+  providers:
+    app_user_provider:
+      entity:
+        class: App\Entity\User
+        property: email
+
+  firewalls:
+    dev:
+      pattern: ^/(?:_(?:profiler|wdt)|css|images|js)/
+      security: false
+
+    main:
+      lazy: true
+      provider: app_user_provider
+      custom_authenticators:
+        - App\Security\LoginAuthenticator
+      entry_point: App\Security\LoginAuthenticator
+      logout:
+        path: logout
+        target: app_login
+
+  access_control:
+    # Stricter rules first
+    - { path: ^/admin/users/new$, roles: ROLE_ADMIN }
+    - { path: ^/admin/users/\d+/edit$, roles: ROLE_ADMIN }
+    # General admin access for moderators and above
+    - { path: ^/admin, roles: ROLE_CONTENT_MANAGER }
