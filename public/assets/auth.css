@@ -1,25 +1,165 @@
-:root { --bg:#0f172a; --card:#111827; --muted:#94a3b8; --text:#e5e7eb; --accent:#6366f1; --accent2:#8b5cf6; --danger:#ef4444; }
-body { margin:0; background: radial-gradient(1200px 800px at 80% -10%, rgba(99,102,241,.25), transparent 60%),
-                         radial-gradient(1000px 700px at -10% 100%, rgba(139,92,246,.25), transparent 60%),
-                         var(--bg); color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; }
-.wrap { min-height:100vh; display:grid; place-items:center; padding:24px; }
-.card { width:100%; max-width:420px; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-        border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:28px; box-shadow:0 10px 40px rgba(0,0,0,.35); backdrop-filter: blur(8px); }
-.brand { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
-.logo { width:36px; height:36px; display:grid; place-items:center; border-radius:10px;
-        background: conic-gradient(from 220deg, var(--accent), var(--accent2)); box-shadow: 0 0 30px rgba(99,102,241,.35); font-weight:700; }
-h1 { font-size:22px; margin:0; }
-p.sub { margin:6px 0 0 0; color:var(--muted); font-size:14px; }
-form { margin-top:18px; display:grid; gap:14px; }
-.row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-.field { display:grid; gap:8px; }
-.label { font-size:13px; color:#cbd5e1; }
-.control { display:flex; align-items:center; gap:10px; background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
-           border-radius:12px; padding:12px 14px; }
-input[type="text"], input[type="email"], input[type="password"] { width:100%; background:transparent; border:none; outline:none; color:var(--text); font-size:14px; }
-.actions { display:flex; justify-content:space-between; align-items:center; margin-top:4px; }
-.btn { width:100%; background: linear-gradient(135deg, var(--accent), var(--accent2)); color:white; border:none; padding:12px 16px; border-radius:12px; font-weight:600; cursor:pointer; box-shadow:0 8px 24px rgba(99,102,241,.35); transition:.2s transform; }
-.btn:hover { transform: translateY(-1px); }
-.error { margin-top:10px; color:#fee2e2; background: rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.4); padding:10px 12px; border-radius:10px; font-size:13px; }
-.helper { text-align:center; color:var(--muted); font-size:12px; margin-top:12px; }
-.link-accent { color:#c7d2fe; text-decoration:none; font-weight:600; }
+:root {
+    --bg: #0f172a;
+    --card: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #6366f1;
+    --accent2: #8b5cf6;
+    --danger: #ef4444;
+}
+
+body {
+    margin: 0;
+    background: radial-gradient(1200px 800px at 80% -10%, rgba(99, 102, 241, .25), transparent 60%),
+    radial-gradient(1000px 700px at -10% 100%, rgba(139, 92, 246, .25), transparent 60%),
+    var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.wrap {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.card {
+    width: 100%;
+    max-width: 420px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .02));
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .35);
+    backdrop-filter: blur(8px);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.logo {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: conic-gradient(from 220deg, var(--accent), var(--accent2));
+    box-shadow: 0 0 30px rgba(99, 102, 241, .35);
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 22px;
+    margin: 0;
+}
+
+p.sub {
+    margin: 6px 0 0 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+form {
+    margin-top: 18px;
+    display: grid;
+    gap: 14px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.field {
+    display: grid;
+    gap: 8px;
+}
+
+.label {
+    font-size: 13px;
+    color: #cbd5e1;
+}
+
+.control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, .04);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+
+input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 14px;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--text) !important;
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+    background-color: transparent !important;
+    color: var(--text) !important;
+    caret-color: var(--text) !important;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(99, 102, 241, .35);
+    transition: .2s transform;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.error {
+    margin-top: 10px;
+    color: #fee2e2;
+    background: rgba(239, 68, 68, .12);
+    border: 1px solid rgba(239, 68, 68, .4);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.helper {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 12px;
+}
+
+.link-accent {
+    color: #c7d2fe;
+    text-decoration: none;
+    font-weight: 600;
+}

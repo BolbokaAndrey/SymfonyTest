@@ -3,48 +3,50 @@
 {% block title %}Вход в систему{% endblock %}
 
 {% block stylesheets %}
-  <link rel="stylesheet" href="{{ asset('assets/auth.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/auth.css') }}">
 {% endblock %}
 
 {% block body %}
-  <div class="wrap">
-    <div class="card">
-      <div class="brand">
-        <div class="logo">⨉</div>
-        <div>
-          <h1>Вход</h1>
-          <p class="sub">Добро пожаловать! Введите ваши данные для входа.</p>
+    <script src="{{ asset('assets/auth.js') }}"></script>
+
+    <div class="wrap">
+        <div class="card">
+            <div class="brand">
+                <div class="logo">⨉</div>
+                <div>
+                    <h1>Вход</h1>
+                    <p class="sub">Добро пожаловать! Введите ваши данные для входа.</p>
+                </div>
+            </div>
+
+            {% if error %}
+                <div class="error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_login') }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                <div class="field">
+                    <label class="label" for="inputEmail">Email</label>
+                    <div class="control">
+                        <input id="inputEmail" type="email" name="email" value="{{ last_username|default('') }}" placeholder="you@example.com" required autofocus>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="inputPassword">Пароль</label>
+                    <div class="control">
+                        <input id="inputPassword" type="password" name="password" placeholder="Ваш пароль" required>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn" type="submit">Войти</button>
+                </div>
+            </form>
+
+            <div class="helper">Нет аккаунта? <a class="link-accent" href="{{ path('app_register') }}">Зарегистрироваться</a></div>
+            <div class="helper">Забыли пароль? Свяжитесь с администратором.</div>
         </div>
-      </div>
-
-      {% if error %}
-        <div class="error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-      {% endif %}
-
-      <form method="post" action="{{ path('app_login') }}">
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-        <div class="field">
-          <label class="label" for="inputEmail">Email</label>
-          <div class="control">
-            <input id="inputEmail" type="email" name="email" value="{{ last_username|default('') }}" placeholder="you@example.com" required autofocus>
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="label" for="inputPassword">Пароль</label>
-          <div class="control">
-            <input id="inputPassword" type="password" name="password" placeholder="Ваш пароль" required>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="btn" type="submit">Войти</button>
-        </div>
-      </form>
-
-      <div class="helper">Нет аккаунта? <a class="link-accent" href="{{ path('app_register') }}">Зарегистрироваться</a></div>
-      <div class="helper">Забыли пароль? Свяжитесь с администратором.</div>
     </div>
-  </div>
 {% endblock %}
