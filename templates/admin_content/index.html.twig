@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Админка{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="layout">
+        {% include 'admin/components/sidebar.html.twig' %}
+        <main class="content">
+            {% include 'admin/components/header.html.twig' %}
+            <div class="card">
+                <p>Здесь будет контент</p>
+            </div>
+        </main>
+    </div>
+{% endblock %}

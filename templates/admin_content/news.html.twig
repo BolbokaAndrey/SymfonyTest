@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Админка — Новости{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="layout">
+        {% include 'admin/components/sidebar.html.twig' %}
+        <main class="content">
+            {% embed 'admin/components/header.html.twig' %}
+                {% block header_actions %}
+                    <a href="{{ path('admin_content_news_new') }}" class="btn">Добавить новость</a>
+                {% endblock %}
+            {% endembed %}
+            <div class="card">
+                {% if news is empty %}
+                    <div style="text-align: center; padding: 40px; color: var(--muted);">
+                        <p>Пока нет созданных новостей</p>
+                        <a href="{{ path('admin_content_news_new') }}" class="btn" style="margin-top: 20px;">Создать первую новость</a>
+                    </div>
+                {% else %}
+                    <div style="display: grid; gap: 20px;">
+                        {% for newsItem in news %}
+                            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; gap: 20px;">
+                                {% if newsItem.propertiesAsArray.image %}
+                                    <div style="flex-shrink: 0;">
+                                        <img src="{{ asset(newsItem.propertiesAsArray.image) }}" alt="Изображение новости"
+                                             style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                    </div>
+                                {% endif %}
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">
+                                        {{ newsItem.propertiesAsArray.title ?? 'Без названия' }}
+                                    </h3>
+                                    <p style="margin: 0 0 12px 0; color: var(--muted); line-height: 1.5;">
+                                        {{ (newsItem.propertiesAsArray.content ?? '')|length > 200 ? (newsItem.propertiesAsArray.content|slice(0, 200)) ~ '...' : (newsItem.propertiesAsArray.content ?? '') }}
+                                    </p>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted);">
+                                        <span>Создана: {{ newsItem.createdAt|date('d.m.Y H:i') }}</span>
+                                        {% if newsItem.activeAt %}
+                                            <span>Активна с: {{ newsItem.activeAt|date('d.m.Y H:i') }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <a href="{{ path('admin_content_news_new') }}" class="btn" style="padding: 8px 12px; font-size: 12px;">Редактировать</a>
+                                    <button class="btn" onclick="if(confirm('Удалить новость?')) { /* TODO: Add delete functionality */ }"
+                                            style="padding: 8px 12px; font-size: 12px; background: var(--danger);">Удалить</button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Админка — {{ mode == 'edit' ? 'Редактировать' : 'Создать' }} новость{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="layout">
+        {% include 'admin/components/sidebar.html.twig' %}
+        <main class="content">
+            {% embed 'admin/components/header.html.twig' %}
+                {% block header_actions %}
+                    <a class="btn" href="{{ path('admin_content_news') }}">Назад</a>
+                {% endblock %}
+            {% endembed %}
+            <div class="card">
+                {% if error %}
+                    <div class="danger">{{ error }}</div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% if titleProperty %}
+                        <div class="field">
+                            <label class="label" for="inputTitle">{{ titleProperty.name|capitalize }}{% if titleProperty.required %} *{% endif %}</label>
+                            <div class="control">
+                                <input id="inputTitle" type="text" name="title" value="{{ news.title|default('') }}"{% if titleProperty.required %} required{% endif %}>
+                            </div>
+                            {% if titleProperty.description %}
+                                <small style="color: var(--muted); font-size: 12px;">{{ titleProperty.description }}</small>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    {% if contentProperty %}
+                        <div class="field">
+                            <label class="label" for="inputText">{{ contentProperty.name|capitalize }}{% if contentProperty.required %} *{% endif %}</label>
+                            <div class="control">
+                                <textarea id="inputText" name="text" rows="8" placeholder="{{ contentProperty.description ?? 'Введите ' ~ contentProperty.name ~ '...' }}"{% if contentProperty.required %} required{% endif %}>{{ news.text|default('') }}</textarea>
+                            </div>
+                            {% if contentProperty.description %}
+                                <small style="color: var(--muted); font-size: 12px;">{{ contentProperty.description }}</small>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    {% if imageProperty %}
+                        <div class="field">
+                            <label class="label" for="inputPicture">{{ imageProperty.name|capitalize }}{% if imageProperty.required %} *{% endif %}</label>
+                            <div class="control">
+                                <input id="inputPicture" type="file" name="picture" accept="image/*"{% if imageProperty.required %} required{% endif %}>
+                            </div>
+                            {% if imageProperty.description %}
+                                <small style="color: var(--muted); font-size: 12px;">{{ imageProperty.description }}</small>
+                            {% else %}
+                                <small style="color: var(--muted); font-size: 12px;">Поддерживаются форматы: JPG, PNG, GIF</small>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <div class="field">
+                        <label class="label" for="inputActive">Дата активации *</label>
+                        <div class="control">
+                            <input id="inputActive" type="datetime-local" name="active" value="{{ news.activeAt|default('') }}" required>
+                        </div>
+                        <small style="color: var(--muted); font-size: 12px;">Укажите дату и время, когда новость должна стать активной</small>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn" type="submit">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+{% endblock %}

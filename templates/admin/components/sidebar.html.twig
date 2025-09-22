@@ -4,6 +4,13 @@
   <nav class="nav">
     <a href="{{ path('admin_index') }}">Главная</a>
     <a href="{{ path('admin_users') }}">Пользователи</a>
+    <div class="nav-item">
+      <a href="{{ path('admin_content') }}">Контент</a>
+      <div class="submenu">
+        <a href="{{ path('admin_content_news') }}">Новости</a>
+        <a href="{{ path('admin_properties_list') }}">Свойства контента</a>
+      </div>
+    </div>
   </nav>
 </aside>
 {% endblock %}
