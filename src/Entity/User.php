@@ -99,10 +99,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->roles = $roles;
     }
 
-    // Convenience for external management expecting codes
-    public function getRoleCodes(): array { return $this->getRoles(); }
-    public function setRoleCodes(array $codes): self { $this->setRoles($codes); return $this; }
-
     /**
      * Checks if the user has a specific role.
      */

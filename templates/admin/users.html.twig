@@ -8,26 +8,15 @@
 
 {% block body %}
   <div class="layout">
-    <aside class="sidebar">
-      <div class="brand">Панель администратора</div>
-      <nav class="nav">
-        <a href="{{ path('admin_index') }}">Главная</a>
-        <a href="{{ path('admin_users') }}">Пользователи</a>
-      </nav>
-    </aside>
+      {% include 'admin/components/sidebar.html.twig' %}
     <main class="content">
-      <div class="top">
-        <div>
-          <div class="title">Пользователи</div>
-          <div class="badge">Вы вошли как {{ app.user.email }}</div>
-        </div>
-        <div style="display:flex; gap:10px; align-items:center;">
-          {% if is_granted('ROLE_ADMIN') %}
-            <a class="btn" href="{{ path('admin_users_new') }}">Создать</a>
-          {% endif %}
-          <a class="btn" href="{{ path('logout') }}">Выйти</a>
-        </div>
-      </div>
+        {% embed 'admin/components/header.html.twig' %}
+            {% block header_actions %}
+            {% if is_granted('ROLE_ADMIN') %}
+                <a class="btn" href="{{ path('admin_users_new') }}">Создать</a>
+            {% endif %}
+            {% endblock %}
+        {% endembed %}
 
       <div class="card">
         <table>

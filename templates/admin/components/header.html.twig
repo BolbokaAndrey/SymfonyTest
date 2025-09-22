@@ -1,0 +1,12 @@
+{% block header %}
+<div class="top">
+  <div>
+    <div class="title">{{ title|default('Добро пожаловать!') }}</div>
+    <div class="badge">Вы вошли как {{ app.user.email }}</div>
+  </div>
+  <div class="actions">
+    {% block header_actions %}{% endblock %}
+    <a class="btn" href="{{ path('logout') }}">Выйти</a>
+  </div>
+</div>
+{% endblock %}

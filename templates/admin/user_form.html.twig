@@ -8,25 +8,13 @@
 
 {% block body %}
   <div class="layout">
-    <aside class="sidebar">
-      <div class="brand">Панель администратора</div>
-      <nav class="nav">
-        <a href="{{ path('admin_index') }}">Главная</a>
-        <a href="{{ path('admin_users') }}">Пользователи</a>
-      </nav>
-    </aside>
+      {% include 'admin/components/sidebar.html.twig' %}
     <main class="content">
-      <div class="top">
-        <div>
-          <div class="title">{{ mode == 'edit' ? 'Редактировать' : 'Создать' }} пользователя</div>
-          <div class="badge">Вы вошли как {{ app.user.email }}</div>
-        </div>
-        <div class="actions">
-          <a class="btn" href="{{ path('admin_users') }}">Назад</a>
-          <a class="btn" href="{{ path('logout') }}">Выйти</a>
-        </div>
-      </div>
-
+        {% embed 'admin/components/header.html.twig' %}
+            {% block header_actions %}
+                <a class="btn" href="{{ path('admin_users') }}">Назад</a>
+            {% endblock %}
+        {% endembed %}
       <div class="card">
         {% if error %}
           <div class="danger">{{ error }}</div>

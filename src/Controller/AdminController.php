@@ -35,6 +35,7 @@ final class AdminController extends AbstractController
         return $this->render('admin/users.html.twig', [
             'users' => $users,
             'roleNames' => $roleNames,
+            'title' => 'Пользователи',
         ]);
     }
 
@@ -71,7 +72,7 @@ final class AdminController extends AbstractController
                     $user->setLastName($lastName ?: null);
                     $user->setEmail($email);
                     // по умолчанию ROLE_USER + выбранная роль
-                    $codes = ['ROLE_USER'];
+                    $codes = [];
                     $codes[] = $selectedRole->getCode();
                     $user->setRoles(array_values(array_unique($codes)));
                     $hash = $passwordHasher->hashPassword($user, $plainPassword);
@@ -93,6 +94,7 @@ final class AdminController extends AbstractController
                 'role_code' => $request->request->get('role_code'),
             ],
             'roles' => $allRoles,
+            'title' => 'Создать пользователя',
         ]);
     }
 
@@ -171,6 +173,7 @@ final class AdminController extends AbstractController
             'userId' => $user->getId(),
             'targetIsSuper' => $targetIsSuper,
             'roles' => $allRoles,
+            'title' => 'Редактировать пользователя',
         ]);
     }
 
