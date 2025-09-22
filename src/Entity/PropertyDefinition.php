@@ -31,9 +31,6 @@ class PropertyDefinition
     private ?int $sortOrder = 0;
 
     #[ORM\Column(type: 'json', nullable: true)]
-    private ?array $validationRules = null;
-
-    #[ORM\Column(type: 'json', nullable: true)]
     private ?array $defaultValue = null;
 
     #[ORM\Column(length: 1000, nullable: true)]
@@ -107,17 +104,6 @@ class PropertyDefinition
     public function setSortOrder(int $sortOrder): static
     {
         $this->sortOrder = $sortOrder;
-        return $this;
-    }
-
-    public function getValidationRules(): ?array
-    {
-        return $this->validationRules;
-    }
-
-    public function setValidationRules(?array $validationRules): static
-    {
-        $this->validationRules = $validationRules;
         return $this;
     }
 

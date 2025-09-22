@@ -15,17 +15,11 @@ class NewsItem
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 255, nullable: false)]
+    private string $name = '';
+
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $createdAt = null;
-
-    #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $updatedAt = null;
-
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $activeAt = null;
-
-    #[ORM\Column(length: 50, nullable: false)]
-    private ?string $status = 'draft';
 
     #[ORM\OneToMany(mappedBy: 'newsItem', targetEntity: PropertyValue::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['sortOrder' => 'ASC'])]
@@ -34,7 +28,6 @@ class NewsItem
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
         $this->propertyValues = new ArrayCollection();
     }
 
@@ -51,39 +44,6 @@ class NewsItem
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-        return $this;
-    }
-
-    public function getActiveAt(): ?\DateTimeImmutable
-    {
-        return $this->activeAt;
-    }
-
-    public function setActiveAt(?\DateTimeImmutable $activeAt): static
-    {
-        $this->activeAt = $activeAt;
-        return $this;
-    }
-
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(string $status): static
-    {
-        $this->status = $status;
         return $this;
     }
 
@@ -170,13 +130,13 @@ class NewsItem
         return $this;
     }
 
-    /**
-     * Update timestamp before persist
-     */
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function updateTimestamp(): void
+    public function getName(): string
     {
-        $this->updatedAt = new \DateTimeImmutable();
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }
