@@ -1,75 +1,85 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Админка — {{ mode == 'edit' ? 'Редактировать' : 'Создать' }} пользователя{% endblock %}
+{% block title %}{{ (mode == 'edit' ? 'Редактирование' : 'Создание') ~ ' пользователя' }} - Админка{% endblock %}
 
 {% block stylesheets %}
-  <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
 {% endblock %}
 
 {% block body %}
-  <div class="layout">
-      {% include 'admin/components/sidebar.html.twig' %}
-    <main class="content">
-        {% embed 'admin/components/header.html.twig' %}
-            {% block header_actions %}
-                <a class="btn" href="{{ path('admin_users') }}">Назад</a>
-            {% endblock %}
-        {% endembed %}
-      <div class="card">
-        {% if error %}
-          <div class="danger">{{ error }}</div>
-        {% endif %}
-
-        <form method="post">
-          <div class="row">
-            <div class="field">
-              <label class="label" for="inputName">Имя</label>
-              <div class="control">
-                <input id="inputName" type="text" name="name" value="{{ userData.name|default('') }}" required>
-              </div>
+    <div class="layout">
+        {% include 'admin/components/sidebar.html.twig' %}
+        <main class="content">
+            <div class="top">
+                <h1 class="title">{{ mode == 'edit' ? 'Редактирование' : 'Создание' }} пользователя</h1>
+                <a href="{{ path('admin_users') }}" class="btn">
+                    <i class="fas fa-arrow-left"></i> Назад к списку
+                </a>
             </div>
-            <div class="field">
-              <label class="label" for="inputLastName">Фамилия</label>
-              <div class="control">
-                <input id="inputLastName" type="text" name="lastName" value="{{ userData.lastName|default('') }}">
-              </div>
-            </div>
-          </div>
 
-          <div class="field">
-            <label class="label" for="inputEmail">Email</label>
-            <div class="control">
-              <input id="inputEmail" type="email" name="email" value="{{ userData.email|default('') }}" required>
-            </div>
-          </div>
+            <div class="card">
+                {% if error is defined and error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
 
-          <div class="field">
-            <label class="label" for="inputPassword">Пароль{% if mode == 'edit' %} (оставьте пустым, чтобы не менять){% endif %}</label>
-            <div class="control">
-              <input id="inputPassword" type="password" name="password" placeholder="Не менее 6 символов" {% if mode != 'edit' %}required{% endif %}>
-            </div>
-          </div>
+                <form method="post" class="property-form">
+                    <div class="form-group">
+                        <label for="inputName">Имя *</label>
+                        <input type="text" id="inputName" name="name" 
+                               value="{{ userData.name|default('') }}" 
+                               required
+                               class="form-control">
+                    </div>
 
-          <div class="field">
-            <label class="label" for="inputRole">Роль</label>
-            <div class="control">
-              <select id="inputRole" name="role_code" style="width:100%; background:transparent; border:none; outline:none; color:var(--text); font-size:14px;">
-                <option value="" {% if userData.role_code is not defined or userData.role_code is empty %}selected{% endif %} disabled>— выберите роль —</option>
-                {% for r in roles %}
-                  {% set disabled = (r.code == 'ROLE_SUPER_ADMIN' and not is_granted('ROLE_SUPER_ADMIN')) %}
-                  <option value="{{ r.code }}" {% if (userData.role_code|default('') == r.code) %}selected{% endif %} {% if disabled %}disabled{% endif %}>
-                    {{ r.nameRu }}
-                  </option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
+                    <div class="form-group">
+                        <label for="inputLastName">Фамилия</label>
+                        <input type="text" id="inputLastName" name="lastName" 
+                               value="{{ userData.lastName|default('') }}"
+                               class="form-control">
+                    </div>
 
-          <div class="actions">
-            <button class="btn" type="submit">Сохранить</button>
-          </div>
-        </form>
-      </div>
-    </main>
-  </div>
+                    <div class="form-group">
+                        <label for="inputEmail">Email *</label>
+                        <input type="email" id="inputEmail" name="email" 
+                               value="{{ userData.email|default('') }}"
+                               required
+                               class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputPassword">Пароль {% if mode == 'edit' %}(оставьте пустым, чтобы не менять){% else %}*{% endif %}</label>
+                        <input type="password" id="inputPassword" name="password" 
+                               placeholder="Не менее 6 символов" 
+                               {% if mode != 'edit' %}required{% endif %}
+                               class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputRole">Роль *</label>
+                        <select id="inputRole" name="role_code" required class="form-control">
+                            <option value="" disabled {% if userData.role_code is not defined or userData.role_code is empty %}selected{% endif %}>— выберите роль —</option>
+                            {% for r in roles %}
+                                {% set disabled = (r.code == 'ROLE_SUPER_ADMIN' and not is_granted('ROLE_SUPER_ADMIN')) %}
+                                <option value="{{ r.code }}" 
+                                        {% if (userData.role_code|default('') == r.code) %}selected{% endif %} 
+                                        {% if disabled %}disabled{% endif %}>
+                                    {{ r.nameRu }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Сохранить
+                        </button>
+                        <a href="{{ path('admin_users') }}" class="btn btn-secondary">
+                            Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
 {% endblock %}

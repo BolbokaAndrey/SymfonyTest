@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }} - Админка{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="layout">
+        {% include 'admin/components/sidebar.html.twig' %}
+        <main class="content">
+            <div class="top">
+                <h1 class="title">{{ title }}</h1>
+                <a href="{{ path('admin_properties') }}" class="btn">
+                    <i class="fas fa-arrow-left"></i> Назад к списку
+                </a>
+            </div>
+
+            <div class="card">
+                <form method="post" class="property-form">
+                    <div class="form-group">
+                        <label for="name">Название *</label>
+                        <input type="text" id="name" name="name"
+                               value="{{ propertyDefinition.name ?? '' }}"
+                               required
+                               class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="code">Код *</label>
+                        <input type="text" id="code" name="code"
+                               value="{{ propertyDefinition.code ?? '' }}"
+                               required
+                               pattern="[a-z0-9_]+"
+                               title="Только латинские буквы в нижнем регистре, цифры и подчеркивания"
+                               class="form-control">
+                        <small class="form-hint">Только латинские буквы в нижнем регистре, цифры и подчеркивания</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="type">Тип *</label>
+                        <select id="type" name="type" required class="form-control">
+                            <option value="">Выберите тип</option>
+                            <option value="string" {% if (propertyDefinition.type ?? '') == 'string' %}selected{% endif %}>Строка</option>
+                            <option value="text" {% if (propertyDefinition.type ?? '') == 'text' %}selected{% endif %}>Текст</option>
+                            <option value="number" {% if (propertyDefinition.type ?? '') == 'number' %}selected{% endif %}>Число</option>
+                            <option value="boolean" {% if (propertyDefinition.type ?? '') == 'boolean' %}selected{% endif %}>Да/Нет</option>
+                            <option value="date" {% if (propertyDefinition.type ?? '') == 'date' %}selected{% endif %}>Дата</option>
+                            <option value="datetime" {% if (propertyDefinition.type ?? '') == 'datetime' %}selected{% endif %}>Дата и время</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group form-checkbox">
+                            <input type="checkbox" id="required" name="required"
+                                   {% if propertyDefinition.required ?? false %}checked{% endif %}
+                                   class="form-checkbox-input">
+                            <label for="required">Обязательное поле</label>
+                        </div>
+
+                        <div class="form-group form-checkbox">
+                            <input type="checkbox" id="multiple" name="multiple"
+                                   {% if propertyDefinition.multiple ?? false %}checked{% endif %}
+                                   class="form-checkbox-input">
+                            <label for="multiple">Множественное значение</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Описание</label>
+                        <textarea id="description" name="description"
+                                  class="form-control"
+                                  rows="3">{{ propertyDefinition.description ?? '' }}</textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Сохранить
+                        </button>
+                        <a href="{{ path('admin_properties') }}" class="btn btn-secondary">
+                            Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+{% endblock %}
