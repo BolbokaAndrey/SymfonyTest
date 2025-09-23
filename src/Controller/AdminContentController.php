@@ -129,4 +129,20 @@ final class AdminContentController extends AbstractController
             'news' => $news,
         ]);
     }
+
+    #[Route('/news/{id}/delete', name: '_news_delete')]
+    public function delete(int $id): Response
+    {
+        $news = $this->newsRepository->find($id);
+
+        if (!$news) {
+            throw $this->createNotFoundException('Новость не найдена');
+        }
+
+        $this->entityManager->remove($news);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Новость успешно удалена');
+        return $this->redirectToRoute('admin_content_news');
+    }
 }
