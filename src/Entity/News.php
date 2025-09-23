@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\NewsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -15,35 +17,38 @@ class News
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $text = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $activeAt = null;
+    /**
+     * @var Collection<int, PropertyValue>
+     */
+    #[ORM\ManyToMany(targetEntity: PropertyValue::class)]
+    private Collection $properties;
 
-    #[ORM\OneToOne(targetEntity: File::class)]
-    #[ORM\JoinColumn(name: 'news_picture_id', referencedColumnName: 'id')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?File $newsPicture = null;
+    public function __construct()
+    {
+        $this->properties = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getTitle(): ?string
     {
-        return $this->name;
+        return $this->title;
     }
 
-    public function setName(string $name): static
+    public function setTitle(string $title): static
     {
-        $this->name = $name;
+        $this->title = $title;
 
         return $this;
     }
@@ -60,33 +65,39 @@ class News
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $createdAt): void
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
     }
 
-    public function getActiveAt(): ?\DateTimeInterface
+    /**
+     * @return Collection<int, PropertyValue>
+     */
+    public function getProperties(): Collection
     {
-        return $this->activeAt;
+        return $this->properties;
     }
 
-    public function setActiveAt(?\DateTimeInterface $activeAt): void
+    public function addProperty(PropertyValue $property): static
     {
-        $this->activeAt = $activeAt;
+        if (!$this->properties->contains($property)) {
+            $this->properties->add($property);
+        }
+
+        return $this;
     }
 
-    public function getNewsPicture(): ?File
+    public function removeProperty(PropertyValue $property): static
     {
-        return $this->newsPicture;
-    }
+        $this->properties->removeElement($property);
 
-    public function setNewsPicture(?File $newsPicture): void
-    {
-        $this->newsPicture = $newsPicture;
+        return $this;
     }
 }

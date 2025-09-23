@@ -16,19 +16,28 @@ class PropertyValueRepository extends ServiceEntityRepository
         parent::__construct($registry, PropertyValue::class);
     }
 
-    /**
-     * Get property values for a specific news item
-     */
-    public function findByNewsItem(int $newsItemId): array
-    {
-        return $this->createQueryBuilder('pv')
-            ->join('pv.propertyDefinition', 'pd')
-            ->where('pv.newsItem = :newsItemId')
-            ->andWhere('pd.active = :active')
-            ->setParameter('newsItemId', $newsItemId)
-            ->setParameter('active', true)
-            ->orderBy('pv.sortOrder', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
+//    /**
+//     * @return PropertyValue[] Returns an array of PropertyValue objects
+//     */
+//    public function findByExampleField($value): array
+//    {
+//        return $this->createQueryBuilder('p')
+//            ->andWhere('p.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->orderBy('p.id', 'ASC')
+//            ->setMaxResults(10)
+//            ->getQuery()
+//            ->getResult()
+//        ;
+//    }
+
+//    public function findOneBySomeField($value): ?PropertyValue
+//    {
+//        return $this->createQueryBuilder('p')
+//            ->andWhere('p.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->getQuery()
+//            ->getOneOrNullResult()
+//        ;
+//    }
 }
