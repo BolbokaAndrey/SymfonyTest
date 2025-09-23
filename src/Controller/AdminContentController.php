@@ -102,24 +102,45 @@ final class AdminContentController extends AbstractController
     public function edit(int $id, Request $request): Response
     {
         $news = $this->newsRepository->find($id);
-        $properties = $news->getProperties();
         if (!$news) {
             throw $this->createNotFoundException('Новость не найдена');
+        }
+
+        // Get or create the source property
+        $sourceProperty = null;
+        foreach ($news->getProperties() as $property) {
+            if ($property->getPropertyDefinition()->getCode() === 'source') {
+                $sourceProperty = $property;
+                break;
+            }
         }
 
         if ($request->isMethod('POST')) {
             $news->setTitle($request->request->get('title'));
             $news->setText($request->request->get('text'));
             $news->setCreatedAt(new \DateTimeImmutable($request->request->get('createdAt')));
-            foreach ($properties as $property) {
-                $propertyCode = $property->getPropertyDefinition()->getCode();
-                match ($propertyCode) {
-                    'source' => $property->setValue($request->request->get('source')),
-                };
+            
+            // Handle source property
+            $sourceValue = $request->request->get('source');
+            if ($sourceValue) {
+                if (!$sourceProperty) {
+                    $sourceProperty = new PropertyValue();
+                    $sourceDefinition = $this->propertyDefinitionRepository->findOneBy(['code' => 'source']);
+                    if (!$sourceDefinition) {
+                        throw $this->createNotFoundException('Свойство source не найдено');
+                    }
+                    $sourceProperty->setPropertyDefinition($sourceDefinition);
+                    $news->addProperty($sourceProperty);
+                    $this->entityManager->persist($sourceProperty);
+                }
+                $sourceProperty->setValue($sourceValue);
+            } elseif ($sourceProperty) {
+                // Remove source if it exists but the field is empty
+                $news->removeProperty($sourceProperty);
+                $this->entityManager->remove($sourceProperty);
             }
 
             $this->entityManager->flush();
-
             $this->addFlash('success', 'Новость успешно обновлена');
             return $this->redirectToRoute('admin_content_news');
         }

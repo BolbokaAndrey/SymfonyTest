@@ -47,7 +47,7 @@
                         <div class="form-group" style="flex: 1;">
                             <label for="source">Источник</label>
                             <input type="text" id="source" name="source"
-                                   value="{{ news.properties.source.value ?? '' }}"
+                                   value="{% for property in news.properties %}{% if property.propertyDefinition.code == 'source' %}{{ property.value }}{% endif %}{% endfor %}"
                                    class="form-control"
                                    placeholder="https://example.com">
                         </div>
