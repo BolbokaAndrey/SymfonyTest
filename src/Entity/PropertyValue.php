@@ -37,4 +37,15 @@ class PropertyValue
 
         return $this;
     }
+
+    public function getValue(): ?string
+    {
+        return $this->value;
+    }
+
+    public function setValue(?string $value): static
+    {
+        $this->value = $value;
+        return $this;
+    }
 }

@@ -19,6 +19,9 @@ class PropertyDefinition
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $code = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
@@ -35,7 +38,7 @@ class PropertyDefinition
     /**
      * @var Collection<int, PropertyValue>
      */
-    #[ORM\OneToMany(targetEntity: PropertyValue::class, mappedBy: 'ÐpropertyDefinition')]
+    #[ORM\OneToMany(targetEntity: PropertyValue::class, mappedBy: 'ï¿½propertyDefinition')]
     private Collection $propertyValues;
 
     public function __construct()
@@ -120,7 +123,7 @@ class PropertyDefinition
     {
         if (!$this->propertyValues->contains($propertyValue)) {
             $this->propertyValues->add($propertyValue);
-            $propertyValue->setÐpropertyDefinition($this);
+            $propertyValue->setPropertyDefinition($this);
         }
 
         return $this;
@@ -130,11 +133,21 @@ class PropertyDefinition
     {
         if ($this->propertyValues->removeElement($propertyValue)) {
             // set the owning side to null (unless already changed)
-            if ($propertyValue->getÐpropertyDefinition() === $this) {
-                $propertyValue->setÐpropertyDefinition(null);
+            if ($propertyValue->getPropertyDefinition() === $this) {
+                $propertyValue->setPropertyDefinition(null);
             }
         }
 
         return $this;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(?string $code): void
+    {
+        $this->code = $code;
     }
 }

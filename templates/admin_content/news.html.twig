@@ -1,8 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Админка{% endblock %}
+{% block title %}Новости - Админка{% endblock %}
 
 {% block stylesheets %}
+    {{ parent() }}
     <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
 {% endblock %}
 
@@ -10,9 +11,63 @@
     <div class="layout">
         {% include 'admin/components/sidebar.html.twig' %}
         <main class="content">
-            {% include 'admin/components/header.html.twig' %}
-            <div class="card">
-                <p>Здесь будут новости</p>
+            <div class="top">
+                <h1 class="title">{{ title }}</h1>
+                <a href="{{ path('admin_content_news') }}" class="btn">
+                    <i class="fas fa-plus"></i> Новая новость
+                </a>
+            </div>
+
+            <div class="news-container">
+                {% if news is empty %}
+                    <div class="empty-state">
+                        <p>Новостей пока нет. Хотите создать первую?</p>
+                        <a href="{{ path('admin_content_news') }}" class="btn">
+                            <i class="fas fa-plus"></i> Создать новость
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="news-grid">
+                        {% for newsItem in news %}
+                            <article class="news-card">
+                                <div class="news-content">
+                                    <div class="news-main">
+                                        <div>
+                                            <h2 class="news-title">{{ newsItem.title }}</h2>
+                                            <p class="news-text">{{ newsItem.text|striptags|slice(0, 100) }}{% if newsItem.text|length > 100 %}...{% endif %}</p>
+                                            {% if newsItem.properties is defined and newsItem.properties is not empty %}
+                                                <div class="news-properties">
+                                                    {% for property in newsItem.properties %}
+                                                        <span class="property-tag" title="{{ property.name }} ({{ property.type }})">
+                                                            {{ property.value }}
+                                                        </span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="news-meta">
+                                        <time datetime="{{ newsItem.createdAt|date('Y-m-d\TH:i:s') }}" title="{{ newsItem.createdAt|date('d.m.Y H:i:s') }}">
+                                            <i class="far fa-calendar-alt"></i> {{ newsItem.createdAt|date('d.m.Y H:i') }}
+                                        </time>
+                                        <div class="news-id">#{{ newsItem.id }}</div>
+                                    </div>
+                                </div>
+                                <div class="news-actions">
+                                    <a href="{{ path('admin_content_news', {'id': newsItem.id}) }}" class="btn btn-edit">
+                                        <span>Редактировать</span>
+                                    </a>
+                                    <form action="{{ path('admin_content_news', {'id': newsItem.id}) }}" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить эту новость?')" class="inline-form">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ newsItem.id) }}">
+                                        <button type="submit" class="btn btn-delete">
+                                            <span>Удалить</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
         </main>
     </div>
