@@ -13,7 +13,7 @@
         <main class="content">
             <div class="top">
                 <h1 class="title">{{ title }}</h1>
-                <a href="{{ path('admin_content_news') }}" class="btn">
+                <a href="{{ path('admin_content_news_new') }}" class="btn">
                     <i class="fas fa-plus"></i> Новая новость
                 </a>
             </div>
@@ -22,7 +22,7 @@
                 {% if news is empty %}
                     <div class="empty-state">
                         <p>Новостей пока нет. Хотите создать первую?</p>
-                        <a href="{{ path('admin_content_news') }}" class="btn">
+                        <a href="{{ path('admin_content_news_new') }}" class="btn">
                             <i class="fas fa-plus"></i> Создать новость
                         </a>
                     </div>
@@ -54,7 +54,7 @@
                                     </div>
                                 </div>
                                 <div class="news-actions">
-                                    <a href="{{ path('admin_content_news', {'id': newsItem.id}) }}" class="btn btn-edit">
+                                    <a href="{{ path('admin_content_news_edit', {'id': newsItem.id}) }}" class="btn btn-edit">
                                         <span>Редактировать</span>
                                     </a>
                                     <form action="{{ path('admin_content_news', {'id': newsItem.id}) }}" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить эту новость?')" class="inline-form">

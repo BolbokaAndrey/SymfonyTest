@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }} - Админка{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="layout">
+        {% include 'admin/components/sidebar.html.twig' %}
+        <main class="content">
+            <div class="top">
+                <h1 class="title">{{ title }}</h1>
+                <a href="{{ path('admin_content_news') }}" class="btn">
+                    <i class="fas fa-arrow-left"></i> Назад к списку
+                </a>
+            </div>
+
+            <div class="card">
+                <form method="post" class="property-form">
+                    <div class="form-group">
+                        <label for="title">Заголовок *</label>
+                        <input type="text" id="title" name="title"
+                               value="{{ news.title ?? '' }}"
+                               required
+                               class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="text">Текст новости *</label>
+                        <textarea id="text" name="text"
+                                  class="form-control"
+                                  rows="8"
+                                  required>{{ news.text ?? '' }}</textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="createdAt">Дата публикации *</label>
+                            <input type="datetime-local" id="createdAt" name="createdAt"
+                                   value="{{ (news.createdAt ?? 'now')|date('Y-m-d\\TH:i') }}"
+                                   required
+                                   class="form-control">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="source">Источник</label>
+                            <input type="text" id="source" name="source"
+                                   value="{{ news.properties.source.value ?? '' }}"
+                                   class="form-control"
+                                   placeholder="https://example.com">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Сохранить
+                        </button>
+                        <a href="{{ path('admin_content_news') }}" class="btn btn-secondary">
+                            Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+{% endblock %}
