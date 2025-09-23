@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Свойства - Админка{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="layout">
+        {% include 'admin/components/sidebar.html.twig' %}
+        <main class="content">
+            <div class="top">
+                <h1 class="title">{{ title }}</h1>
+                <a href="{{ path('admin_properties') }}" class="btn">
+                    <i class="fas fa-plus"></i> Новое свойство
+                </a>
+            </div>
+
+            <div class="properties-container">
+                {% if properties is empty %}
+                    <div class="empty-state">
+                        <p>Свойств пока нет. Хотите создать первое?</p>
+                        <a href="{{ path('admin_properties') }}" class="btn">
+                            <i class="fas fa-plus"></i> Создать свойство
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="card">
+                        <table class="properties-table">
+                            <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Описание</th>
+                                <th>Код</th>
+                                <th>Тип</th>
+                                <th>Обязательное</th>
+                                <th>Множественное</th>
+                                <th>Действия</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for property in properties %}
+                                <tr>
+                                    <td class="font-medium">
+                                        {{ property.name }}
+                                    </td>
+                                    <td class="text-muted">
+                                        {{ property.description ?? '-' }}
+                                    </td>
+                                    <td>
+                                        <code>{{ property.code }}</code>
+                                    </td>
+                                    <td>
+                                            <span class="badge badge-warning">
+                                                {{ property.type }}
+                                            </span>
+                                    </td>
+                                    <td>
+                                            <span class="badge {{ property.isRequired ? 'badge-danger' : 'badge-success' }}">
+                                                {{ property.isRequired ? 'Да' : 'Нет' }}
+                                            </span>
+                                    </td>
+                                    <td>
+                                            <span class="badge {{ property.isMultiple ? 'badge-warning' : 'badge-success' }}">
+                                                {{ property.isMultiple ? 'Да' : 'Нет' }}
+                                            </span>
+                                    </td>
+                                    <td class="property-actions">
+                                        <a href="{{ path('admin_properties', {'id': property.id}) }}" class="btn btn-edit">
+                                            <span>Изменить</span>
+                                        </a>
+                                        <form action="{{ path('admin_properties_delete', {'id': property.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Вы уверены, что хотите удалить это свойство?')">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ property.id) }}">
+                                            <button type="submit" class="btn btn-delete">
+                                                <span>Удалить</span>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+{% endblock %}

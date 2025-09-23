@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\NewsRepository;
 use App\Repository\PropertyDefinitionRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -11,6 +12,13 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/admin/content', name: 'admin_content')]
 final class AdminContentController extends AbstractController
 {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly NewsRepository $newsRepository,
+    )
+    {
+    }
+
     #[Route('', name: '')]
     public function index(): Response
     {
@@ -20,9 +28,9 @@ final class AdminContentController extends AbstractController
     }
 
     #[Route('/news', name: '_news')]
-    public function news(NewsRepository $newsRepository): Response
+    public function news(): Response
     {
-        $news = $newsRepository->findAll();
+        $news = $this->newsRepository->findAll();
 
         $formattedNews = [];
         foreach ($news as $newsItem) {
@@ -52,17 +60,6 @@ final class AdminContentController extends AbstractController
         return $this->render('admin_content/news.html.twig', [
             'title' => 'Новости',
             'news' => $formattedNews
-        ]);
-    }
-
-    #[Route('/properties', name: '_properties')]
-    public function properties(PropertyDefinitionRepository $propertyDefinitionRepository): Response
-    {
-        $properties = $propertyDefinitionRepository->findAll();
-
-        return $this->render('admin_content/properties.html.twig', [
-            'title' => 'Свойства',
-            'properties' => $properties
         ]);
     }
 }
