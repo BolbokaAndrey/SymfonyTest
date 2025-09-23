@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api/admin')]
+#[Route('/api')]
 final class PropertyDefinitionApiController extends AbstractController
 {
     public function __construct(
@@ -36,7 +36,6 @@ final class PropertyDefinitionApiController extends AbstractController
                 'required' => $definition->isRequired(),
                 'multiple' => $definition->isMultiple(),
                 'sortOrder' => $definition->getSortOrder(),
-                'validationRules' => $definition->getValidationRules(),
                 'defaultValue' => $definition->getDefaultValue(),
                 'description' => $definition->getDescription(),
                 'active' => $definition->isActive(),
@@ -201,7 +200,6 @@ final class PropertyDefinitionApiController extends AbstractController
         $definition->setRequired($data['required'] ?? false);
         $definition->setMultiple($data['multiple'] ?? false);
         $definition->setSortOrder($data['sortOrder'] ?? 0);
-        $definition->setValidationRules($data['validationRules'] ?? null);
         $definition->setDefaultValue($data['defaultValue'] ?? null);
         $definition->setDescription($data['description'] ?? null);
         $definition->setActive($data['active'] ?? true);
@@ -216,7 +214,6 @@ final class PropertyDefinitionApiController extends AbstractController
             'required' => $definition->isRequired(),
             'multiple' => $definition->isMultiple(),
             'sortOrder' => $definition->getSortOrder(),
-            'validationRules' => $definition->getValidationRules(),
             'defaultValue' => $definition->getDefaultValue(),
             'description' => $definition->getDescription(),
             'active' => $definition->isActive(),

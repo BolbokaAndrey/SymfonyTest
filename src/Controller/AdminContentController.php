@@ -40,10 +40,9 @@ final class AdminContentController extends AbstractController
 
         $error = null;
 
-        // Get property definitions for dynamic form
-        $titleProperty = $em->getRepository(PropertyDefinition::class)->findOneBy(['name' => 'title']);
         $contentProperty = $em->getRepository(PropertyDefinition::class)->findOneBy(['name' => 'content']);
         $imageProperty = $em->getRepository(PropertyDefinition::class)->findOneBy(['name' => 'image']);
+        $tagsProperty = $em->getRepository(PropertyDefinition::class)->findOneBy(['name' => 'tags']);
 
         if ($request->isMethod('POST')) {
             try {
@@ -51,42 +50,37 @@ final class AdminContentController extends AbstractController
                 $title = trim($request->request->get('title'));
                 $text = trim($request->request->get('text'));
                 $activeDate = $request->request->get('active');
+                $tags = $request->request->all('tags');
+                $tags = array_values(array_unique(array_filter($tags)));
 
                 if (empty($title)) {
-                    $error = $titleProperty ? $titleProperty->getName() . ' обязательно для заполнения' : 'Название новости обязательно для заполнения';
-                } elseif (empty($text)) {
-                    $error = $contentProperty ? $contentProperty->getName() . ' обязательно для заполнения' : 'Текст новости обязателен для заполнения';
+                    $error = 'Название новости обязательно для заполнения';
                 } elseif (empty($activeDate)) {
                     $error = 'Дата активации обязательна для заполнения';
                 } else {
-                    // Create news entity
                     $news = new NewsItem();
-                    $news->setStatus('draft');
+
+                    $news->setName($title);
                     $news->setActiveAt(new \DateTimeImmutable($activeDate));
 
-                    // Handle file upload
                     $pictureFile = $request->files->get('picture');
                     if ($pictureFile) {
                         if (!$pictureFile->isValid()) {
                             $error = 'Ошибка загрузки файла';
                         } else {
-                            // Create File entity for the uploaded picture
                             $file = new File();
                             $fileName = uniqid() . '.' . $pictureFile->guessExtension();
                             $file->setPath('uploads/news/' . $fileName);
 
-                            // Create upload directory if it doesn't exist
                             $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/news';
                             if (!is_dir($uploadDir)) {
                                 mkdir($uploadDir, 0755, true);
                             }
 
-                            // Move the uploaded file to the target directory
                             $pictureFile->move($uploadDir, $fileName);
 
-                            $em->persist($file); // Persist the File entity
+                            $em->persist($file);
 
-                            // Create property value for image
                             if ($imageProperty) {
                                 $imageValue = new PropertyValue();
                                 $imageValue->setPropertyDefinition($imageProperty);
@@ -98,15 +92,7 @@ final class AdminContentController extends AbstractController
                         }
                     }
 
-                    // Create property values for title and text
-                    if ($titleProperty) {
-                        $titleValue = new PropertyValue();
-                        $titleValue->setPropertyDefinition($titleProperty);
-                        $titleValue->setSingleValue($title);
-                        $titleValue->setNewsItem($news);
-                        $news->addPropertyValue($titleValue);
-                        $em->persist($titleValue);
-                    }
+
 
                     if ($contentProperty) {
                         $textValue = new PropertyValue();
@@ -115,6 +101,15 @@ final class AdminContentController extends AbstractController
                         $textValue->setNewsItem($news);
                         $news->addPropertyValue($textValue);
                         $em->persist($textValue);
+                    }
+
+                    if ($tagsProperty) {
+                        $tagsValue = new PropertyValue();
+                        $tagsValue->setPropertyDefinition($tagsProperty);
+                        $tagsValue->setValue($tags);
+                        $tagsValue->setNewsItem($news);
+                        $news->addPropertyValue($tagsValue);
+                        $em->persist($tagsValue);
                     }
 
                     $em->persist($news);
@@ -132,13 +127,12 @@ final class AdminContentController extends AbstractController
             'title' => 'Новая новость',
             'mode' => 'create',
             'error' => $error,
-            'titleProperty' => $titleProperty,
-            'contentProperty' => $contentProperty,
-            'imageProperty' => $imageProperty,
             'news' => [
                 'title' => $title ?? '',
-                'text' => $text ?? '',
+                'text' => $contentProperty,
+                'image' => $imageProperty,
                 'activeAt' => $activeDate ?? '',
+                'tags' => $tagsProperty,
             ],
         ]);
     }

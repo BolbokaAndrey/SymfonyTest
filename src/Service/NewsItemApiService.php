@@ -19,9 +19,6 @@ class NewsItemApiService
         $dto = new NewsItemDto();
         $dto->id = $newsItem->getId();
         $dto->createdAt = $newsItem->getCreatedAt()->format('c');
-        $dto->updatedAt = $newsItem->getUpdatedAt()->format('c');
-        $dto->activeAt = $newsItem->getActiveAt()?->format('c');
-        $dto->status = $newsItem->getStatus();
         $dto->properties = $newsItem->getPropertiesAsArray();
 
         return $this->serializer->normalize($dto, null, ['groups' => ['api']]);
@@ -41,7 +38,6 @@ class NewsItemApiService
         $dto->required = $definition->isRequired();
         $dto->multiple = $definition->isMultiple();
         $dto->sortOrder = $definition->getSortOrder();
-        $dto->validationRules = $definition->getValidationRules();
         $dto->defaultValue = $definition->getDefaultValue();
         $dto->description = $definition->getDescription();
         $dto->active = $definition->isActive();

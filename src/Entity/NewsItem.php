@@ -21,6 +21,10 @@ class NewsItem
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+
+    private ?\DateTimeImmutable $activeAt = null;
+
     #[ORM\OneToMany(mappedBy: 'newsItem', targetEntity: PropertyValue::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['sortOrder' => 'ASC'])]
     private Collection $propertyValues;
@@ -138,5 +142,15 @@ class NewsItem
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getActiveAt(): ?\DateTimeImmutable
+    {
+        return $this->activeAt;
+    }
+
+    public function setActiveAt(?\DateTimeImmutable $activeAt): void
+    {
+        $this->activeAt = $activeAt;
     }
 }
