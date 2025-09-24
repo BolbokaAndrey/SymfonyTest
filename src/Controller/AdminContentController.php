@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Service\NotificationService;
 
 #[Route('/admin/content', name: 'admin_content')]
 final class AdminContentController extends AbstractController
@@ -27,6 +28,7 @@ final class AdminContentController extends AbstractController
         private readonly PropertyValueRepository $propertyValueRepository,
         private readonly PropertyDefinitionRepository $propertyDefinitionRepository,
         private readonly SluggerInterface $slugger,
+        private readonly NotificationService $notificationService,
     )
     {
     }
@@ -115,6 +117,13 @@ final class AdminContentController extends AbstractController
 
             $this->entityManager->persist($news);
             $this->entityManager->flush();
+
+            // Send notification about new news
+            $this->notificationService->notifyAboutNewNews(
+                $news->getId(),
+                $news->getTitle(),
+                $news->getCreatedAt()
+            );
 
             $this->addFlash('success', 'Новость успешно создана');
             return $this->redirectToRoute('admin_content_news');

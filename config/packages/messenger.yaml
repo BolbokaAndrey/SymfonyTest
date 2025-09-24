@@ -1,17 +1,32 @@
 framework:
+    mailer:
+        dsn: '%env(MAILER_DSN)%'
+
     messenger:
-        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
-        # failure_transport: failed
+        failure_transport: failed
 
         transports:
-            # https://symfony.com/doc/current/messenger.html#transport-configuration
-            async: '%env(MESSENGER_TRANSPORT_DSN)%'
-            # failed: 'doctrine://default?queue_name=failed'
-            # sync: 'sync://'
+            # Sync is used for testing and development
+            sync: 'sync://'
+
+            # RabbitMQ transport for async messages
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    queues:
+                        messages: ~
+
+            # Failed messages transport
+            failed: 'doctrine://default?queue_name=failed'
 
         routing:
-            # Route your messages to the transports
+            # Route messages to transports
+            'App\Message\NewsCreatedNotification': async
             'App\Message\SimulateExternalAuthCheck': async
+
 
 # when@test:
 #    framework:
