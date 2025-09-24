@@ -234,6 +234,6 @@ final class AdminController extends AbstractController
         if ($selectedRole && $selectedRole->getCode() === 'ROLE_SUPER_ADMIN' && !$this->isGranted('ROLE_SUPER_ADMIN')) {
             $error = 'Недостаточно прав для назначения роли Супер-администратор.';
         }
-        return array($name, $lastName, $email, $plainPassword, $selectedRole, $error);
+        return array($name, $lastName, $email, $plainPassword, $selectedRole, $error ?? null);
     }
 }

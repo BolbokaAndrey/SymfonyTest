@@ -11,20 +11,24 @@
     <div class="layout">
         {% include 'admin/components/sidebar.html.twig' %}
         <main class="content">
-            <div class="top">
-                <h1 class="title">{{ title }}</h1>
-                <a href="{{ path('admin_properties_new') }}" class="btn">
-                    <i class="fas fa-plus"></i> Новое свойство
-                </a>
-            </div>
+                {% embed 'admin/components/header.html.twig' %}
+                    {% block header_actions %}
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('admin_properties_new') }}" class="btn">Новое свойство
+                            </a>
+                        {% endif %}
+                    {% endblock %}
+                {% endembed %}
 
             <div class="properties-container">
                 {% if properties is empty %}
                     <div class="empty-state">
-                        <p>Свойств пока нет. Хотите создать первое?</p>
+                        <p>Свойств пока нет. {% if is_granted('ROLE_ADMIN') %}Хотите создать первое?{% endif %}</p>
+                        {% if is_granted('ROLE_ADMIN') %}
                         <a href="{{ path('admin_properties_new') }}" class="btn">
                             <i class="fas fa-plus"></i> Создать свойство
                         </a>
+                        {% endif %}
                     </div>
                 {% else %}
                     <div class="card">
@@ -68,6 +72,7 @@
                                             </span>
                                     </td>
                                     <td class="property-actions">
+                                        {% if is_granted('ROLE_ADMIN') %}
                                         <a href="{{ path('admin_properties_edit', {'id': property.id}) }}" class="btn btn-edit">
                                             <span>Изменить</span>
                                         </a>
@@ -77,6 +82,9 @@
                                                 <span>Удалить</span>
                                             </button>
                                         </form>
+                                        {% else %}
+                                        <span class="text-muted">Доступ запрещен</span>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}

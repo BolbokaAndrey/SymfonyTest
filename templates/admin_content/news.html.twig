@@ -11,12 +11,12 @@
     <div class="layout">
         {% include 'admin/components/sidebar.html.twig' %}
         <main class="content">
-            <div class="top">
-                <h1 class="title">{{ title }}</h1>
-                <a href="{{ path('admin_content_news_new') }}" class="btn">
-                    <i class="fas fa-plus"></i> Новая новость
-                </a>
-            </div>
+            {% embed 'admin/components/header.html.twig' %}
+                {% block header_actions %}
+                    <a href="{{ path('admin_content_news_new') }}" class="btn">Новая новость
+                    </a>
+                {% endblock %}
+            {% endembed %}
 
             <div class="news-container">
                 {% if news is empty %}

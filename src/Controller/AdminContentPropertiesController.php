@@ -23,6 +23,7 @@ final class AdminContentPropertiesController extends AbstractController
     #[Route('', name: '')]
     public function index(): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_CONTENT_MANAGER');
         $properties = $this->propertyDefinitionRepository->findAll();
 
         return $this->render('admin_content_properties/index.html.twig', [
@@ -34,6 +35,7 @@ final class AdminContentPropertiesController extends AbstractController
     #[Route('/new', name: '_new')]
     public function newProperty(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $propertyDefinition = new PropertyDefinition();
 
         if ($request->isMethod('POST')) {
@@ -61,6 +63,7 @@ final class AdminContentPropertiesController extends AbstractController
     #[Route('/{id}/edit', name: '_edit')]
     public function edit(int $id, Request $request): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $propertyDefinition = $this->propertyDefinitionRepository->find($id);
         if (!$propertyDefinition) {
             throw $this->createNotFoundException('Свойство не найдено');
@@ -90,6 +93,7 @@ final class AdminContentPropertiesController extends AbstractController
     #[Route('/{id}/delete', name: '_delete')]
     public function deleteProperty(int $id): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $propertyDefinition = $this->propertyDefinitionRepository->find($id);
 
         if (!$propertyDefinition) {
