@@ -28,7 +28,7 @@ class News
     /**
      * @var Collection<int, PropertyValue>
      */
-    #[ORM\ManyToMany(targetEntity: PropertyValue::class)]
+    #[ORM\ManyToMany(targetEntity: PropertyValue::class, inversedBy: 'news')]
     private Collection $properties;
 
     public function __construct()

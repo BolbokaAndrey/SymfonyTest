@@ -825,3 +825,106 @@ textarea {
     background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
 }
+
+/* Image Upload */
+.image-preview {
+    max-width: 300px;
+    margin: 15px 0;
+    display: none;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+/* Tags Management */
+.tags-container {
+    margin: 15px 0;
+}
+
+.tag-row {
+    display: flex;
+    margin-bottom: 10px;
+    align-items: center;
+    gap: 10px;
+}
+
+.tag-input {
+    flex: 1;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    padding: 8px 12px;
+}
+
+.btn-remove-tag {
+    color: var(--danger);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.btn-remove-tag:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.btn-add-tag {
+    margin-top: 5px;
+    background: var(--secondary-bg);
+    border: 1px dashed var(--border-color);
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.btn-add-tag:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* Form File Input */
+.form-control-file {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.form-control-file::-webkit-file-upload-button {
+    visibility: hidden;
+    width: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.form-control-file::before {
+    content: 'Выберите файл';
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-right: 10px;
+    cursor: pointer;
+}

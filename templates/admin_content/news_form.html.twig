@@ -5,6 +5,42 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <style>
+        .image-preview {
+            max-width: 300px;
+            margin: 15px 0;
+            display: none;
+        }
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 4px;
+        }
+        .tags-container {
+            margin: 15px 0;
+        }
+        .tag-row {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+            gap: 10px;
+        }
+        .tag-input {
+            flex: 1;
+        }
+        .btn-remove-tag {
+            color: #dc3545;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 5px 10px;
+        }
+        .btn-add-tag {
+            margin-top: 5px;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
@@ -19,7 +55,7 @@
             </div>
 
             <div class="card">
-                <form method="post" class="property-form">
+                <form method="post" enctype="multipart/form-data" class="property-form">
                     <div class="form-group">
                         <label for="title">Заголовок *</label>
                         <input type="text" id="title" name="title"
@@ -36,18 +72,57 @@
                                   required>{{ news.text ?? '' }}</textarea>
                     </div>
 
+                    <div class="form-group">
+                        <label for="image">Изображение</label>
+                        <input type="file" id="image" name="image" accept="image/*" class="form-control-file">
+                        <div class="image-preview">
+                            {% set imageDisplayed = false %}
+                            {% for property in news.properties|default([]) %}
+                                {% if property.propertyDefinition.code == 'image' and property.value %}
+                                    <img src="{{ asset('uploads/news/' ~ property.value) }}" alt="Предпросмотр" id="imagePreview">
+                                    {% set imageDisplayed = true %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if not imageDisplayed %}
+                                <img src="#" alt="Предпросмотр" id="imagePreview" style="display: none;">
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Теги</label>
+                        <div class="tags-container" id="tagsContainer">
+                            {% for property in news.properties|default([]) %}
+                                {% if property.propertyDefinition.code == 'tags' %}
+                                    {% set tags = property.value|split(',') %}
+                                    {% for tag in tags %}
+                                        <div class="tag-row">
+                                            <input type="text" name="tags[]" value="{{ tag }}" class="form-control tag-input" placeholder="Введите тег">
+                                            <button type="button" class="btn-remove-tag" onclick="removeTag(this)">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm btn-add-tag" onclick="addTag()">
+                            <i class="fas fa-plus"></i> Добавить тег
+                        </button>
+                    </div>
+
                     <div class="form-row">
-                        <div class="form-group" style="flex: 1;">
+                        <div class="form-group">
                             <label for="createdAt">Дата публикации *</label>
                             <input type="datetime-local" id="createdAt" name="createdAt"
                                    value="{{ (news.createdAt ?? 'now')|date('Y-m-d\\TH:i') }}"
                                    required
                                    class="form-control">
                         </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label for="source">Источник</label>
+                        <div class="form-group">
+                            <label for="source">{% for property in news.properties|default([]) %}{% if property.propertyDefinition.code == 'source' %}{{ property.propertyDefinition.name }}{% endif %}{% endfor %}</label>
                             <input type="text" id="source" name="source"
-                                   value="{% for property in news.properties %}{% if property.propertyDefinition.code == 'source' %}{{ property.value }}{% endif %}{% endfor %}"
+                                   value="{% for property in news.properties|default([]) %}{% if property.propertyDefinition.code == 'source' %}{{ property.value }}{% endif %}{% endfor %}"
                                    class="form-control"
                                    placeholder="https://example.com">
                         </div>
@@ -65,4 +140,67 @@
             </div>
         </main>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imagePreview = document.getElementById('imagePreview');
+            const imagePreviewContainer = document.querySelector('.image-preview');
+            const imageInput = document.getElementById('image');
+
+            // Show preview if image exists
+            if (imagePreview && imagePreview.src && !imagePreview.src.endsWith('#')) {
+                imagePreview.style.display = 'block';
+                if (imagePreviewContainer) {
+                    imagePreviewContainer.style.display = 'block';
+                }
+            }
+
+            // Handle new image selection
+            if (imageInput) {
+                imageInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            if (!imagePreview) return;
+                            imagePreview.src = event.target.result;
+                            imagePreview.style.display = 'block';
+                            if (imagePreviewContainer) {
+                                imagePreviewContainer.style.display = 'block';
+                            }
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+
+        // Tags management functions
+        function addTag(value = '') {
+            const container = document.getElementById('tagsContainer');
+            const tagRow = document.createElement('div');
+            tagRow.className = 'tag-row';
+            tagRow.innerHTML = `
+                <input type="text" name="tags[]" value="${value}" class="form-control tag-input" placeholder="Введите тег">
+                <button type="button" class="btn-remove-tag" onclick="removeTag(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(tagRow);
+        }
+
+        function removeTag(button) {
+            const container = document.getElementById('tagsContainer');
+            const rows = container.getElementsByClassName('tag-row');
+            if (rows.length > 1) {
+                button.closest('.tag-row').remove();
+            } else {
+                const input = container.querySelector('.tag-input');
+                if (input) input.value = '';
+            }
+        }
+    </script>
 {% endblock %}

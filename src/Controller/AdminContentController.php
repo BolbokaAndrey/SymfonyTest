@@ -10,18 +10,23 @@ use App\Repository\PropertyDefinitionRepository;
 use App\Repository\PropertyValueRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/admin/content', name: 'admin_content')]
 final class AdminContentController extends AbstractController
 {
+    private string $newsImageDirectory;
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly NewsRepository $newsRepository,
         private readonly PropertyValueRepository $propertyValueRepository,
         private readonly PropertyDefinitionRepository $propertyDefinitionRepository,
+        private readonly SluggerInterface $slugger,
     )
     {
     }
@@ -75,16 +80,39 @@ final class AdminContentController extends AbstractController
     {
         $news = new News();
         $property = new PropertyValue();
-        if ($request->isMethod('POST')) {
 
+        if ($request->isMethod('POST')) {
             $news->setTitle($request->request->get('title'));
             $news->setText($request->request->get('text'));
             $news->setCreatedAt(new \DateTimeImmutable($request->request->get('createdAt')));
-            $property->setValue($request->request->get('source'));
-            $property->setPropertyDefinition($this->propertyDefinitionRepository->findOneBy(['code' => 'source']));
-            $news->addProperty($property);
 
-            $this->entityManager->persist($property);
+            // Handle image upload
+            $imageFile = $request->files->get('image');
+            if ($imageFile instanceof UploadedFile) {
+                $this->addFile($imageFile, $news);
+            }
+
+            // Handle tags
+            $tags = $request->request->all('tags');
+            $tags = array_filter($tags, function($tag) {
+                return !empty(trim($tag));
+            });
+            $prop = new PropertyValue();
+            $prop->setValue(implode(',', $tags));
+            $prop->setPropertyDefinition($this->propertyDefinitionRepository->findOneBy(['code' => 'tags']));
+            $this->entityManager->persist($prop);
+            $news->addProperty($prop);
+
+            // Handle source property
+            $sourceValue = $request->request->get('source');
+            if ($sourceValue) {
+                $sourceDefinition = $this->propertyDefinitionRepository->findOneBy(['code' => 'source']);
+                $property->setValue($sourceValue);
+                $property->setPropertyDefinition($sourceDefinition);
+                $news->addProperty($property);
+                $this->entityManager->persist($property);
+            }
+
             $this->entityManager->persist($news);
             $this->entityManager->flush();
 
@@ -94,7 +122,7 @@ final class AdminContentController extends AbstractController
 
         return $this->render('admin_content/news_form.html.twig', [
             'title' => 'Создание новости',
-            'propertyDefinition' => $news
+            'news' => $news
         ]);
     }
 
@@ -106,38 +134,48 @@ final class AdminContentController extends AbstractController
             throw $this->createNotFoundException('Новость не найдена');
         }
 
-        // Get or create the source property
-        $sourceProperty = null;
-        foreach ($news->getProperties() as $property) {
-            if ($property->getPropertyDefinition()->getCode() === 'source') {
-                $sourceProperty = $property;
-                break;
-            }
-        }
-
         if ($request->isMethod('POST')) {
             $news->setTitle($request->request->get('title'));
             $news->setText($request->request->get('text'));
             $news->setCreatedAt(new \DateTimeImmutable($request->request->get('createdAt')));
-            
-            // Handle source property
+
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/news';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $imageFile = $request->files->get('image');
+            if ($imageFile instanceof UploadedFile) {
+                $existingImageProperty = $news->getProperties()->filter(function($property) {
+                    return $property->getPropertyDefinition()->getCode() === 'image';
+                })->first();
+
+                if ($existingImageProperty) {
+                    // Remove old image file if it exists
+                    $oldImagePath = $this->getParameter('kernel.project_dir') . '/public/uploads/news/' . $existingImageProperty->getValue();
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
+                    // Remove the property from the news and entity manager
+                    $news->removeProperty($existingImageProperty);
+                    $this->entityManager->remove($existingImageProperty);
+                }
+
+                $this->addFile($imageFile, $news);
+            }
+
+            $tagsValue = $request->request->all('tags');
+            if ($tagsValue) {
+                $news->getProperties()->filter(function ($property) {
+                    return $property->getPropertyDefinition()->getCode() === 'tags';
+                })->first()->setValue(implode(',', $tagsValue));
+            }
+
             $sourceValue = $request->request->get('source');
             if ($sourceValue) {
-                if (!$sourceProperty) {
-                    $sourceProperty = new PropertyValue();
-                    $sourceDefinition = $this->propertyDefinitionRepository->findOneBy(['code' => 'source']);
-                    if (!$sourceDefinition) {
-                        throw $this->createNotFoundException('Свойство source не найдено');
-                    }
-                    $sourceProperty->setPropertyDefinition($sourceDefinition);
-                    $news->addProperty($sourceProperty);
-                    $this->entityManager->persist($sourceProperty);
-                }
-                $sourceProperty->setValue($sourceValue);
-            } elseif ($sourceProperty) {
-                // Remove source if it exists but the field is empty
-                $news->removeProperty($sourceProperty);
-                $this->entityManager->remove($sourceProperty);
+                $news->getProperties()->filter(function ($property) {
+                    return $property->getPropertyDefinition()->getCode() === 'source';
+                })->first()->setValue($sourceValue);
             }
 
             $this->entityManager->flush();
@@ -165,5 +203,37 @@ final class AdminContentController extends AbstractController
 
         $this->addFlash('success', 'Новость успешно удалена');
         return $this->redirectToRoute('admin_content_news');
+    }
+
+    /**
+     * @param UploadedFile $imageFile
+     * @param $news
+     * @return void
+     */
+    public function addFile(UploadedFile $imageFile, $news): void
+    {
+        $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = $this->slugger->slug($originalFilename);
+        $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+
+        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/news';
+
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        try {
+            $imageFile->move(
+                $uploadDir,
+                $newFilename
+            );
+            $prop = new PropertyValue();
+            $prop->setValue($newFilename);
+            $prop->setPropertyDefinition($this->propertyDefinitionRepository->findOneBy(['code' => 'image']));
+            $this->entityManager->persist($prop);
+            $news->addProperty($prop);
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Не удалось загрузить изображение');
+        }
     }
 }
