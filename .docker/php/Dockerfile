@@ -21,8 +21,10 @@ RUN set -eux; \
         libtool \
         rabbitmq-c-dev; \
     \
-    pecl install amqp; \
-    docker-php-ext-enable amqp; \
+    pecl install amqp \
+        redis; \
+    docker-php-ext-enable amqp \
+        redis; \
     docker-php-ext-configure gd \
         --with-jpeg=/usr/include/ \
         --with-freetype=/usr/include/; \

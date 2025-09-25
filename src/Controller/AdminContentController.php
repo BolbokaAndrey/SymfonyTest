@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\NotificationService;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 #[Route('/admin/content', name: 'admin_content')]
 final class AdminContentController extends AbstractController
@@ -42,38 +44,45 @@ final class AdminContentController extends AbstractController
     }
 
     #[Route('/news', name: '_news')]
-    public function news(): Response
+    public function news(CacheInterface $cache): Response
     {
-        $news = $this->newsRepository->findAll();
+        $data = $cache->get('news', function (ItemInterface $item) {
+            $item->expiresAfter(60);
 
-        $formattedNews = [];
-        foreach ($news as $newsItem) {
-            $properties = [];
-            foreach ($newsItem->getProperties() as $propertyValue) {
-                if ($propertyValue->getPropertyDefinition()) {
-                    $code = $propertyValue->getPropertyDefinition()->getCode();
-                    $properties[$code] = [
-                        'id' => $propertyValue->getId(),
-                        'name' => $propertyValue->getPropertyDefinition()->getName(),
-                        'value' => $propertyValue->getValue() ?? '',
-                        'code' => $propertyValue->getPropertyDefinition()->getCode(),
-                        'type' => $propertyValue->getPropertyDefinition()->getType()
-                    ];
+            $news = $this->newsRepository->findAll();
+
+            $formattedNews = [];
+            foreach ($news as $newsItem) {
+                $properties = [];
+                foreach ($newsItem->getProperties() as $propertyValue) {
+                    if ($propertyValue->getPropertyDefinition()) {
+                        $code = $propertyValue->getPropertyDefinition()->getCode();
+                        $properties[$code] = [
+                            'id' => $propertyValue->getId(),
+                            'name' => $propertyValue->getPropertyDefinition()->getName(),
+                            'value' => $propertyValue->getValue() ?? '',
+                            'code' => $propertyValue->getPropertyDefinition()->getCode(),
+                            'type' => $propertyValue->getPropertyDefinition()->getType()
+                        ];
+                    }
                 }
+
+                $formattedNews[] = [
+                    'id' => $newsItem->getId(),
+                    'title' => $newsItem->getTitle(),
+                    'text' => $newsItem->getText(),
+                    'createdAt' => $newsItem->getCreatedAt(),
+                    'properties' => $properties
+                ];
             }
 
-            $formattedNews[] = [
-                'id' => $newsItem->getId(),
-                'title' => $newsItem->getTitle(),
-                'text' => $newsItem->getText(),
-                'createdAt' => $newsItem->getCreatedAt(),
-                'properties' => $properties
-            ];
-        }
+            return $formattedNews;
+        });
+
 
         return $this->render('admin_content/news.html.twig', [
             'title' => 'Новости',
-            'news' => $formattedNews
+            'news' => $data
         ]);
     }
 

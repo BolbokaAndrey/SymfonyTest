@@ -10,19 +10,26 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Exception\InvalidArgumentException;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 #[Route('/api/news', name: 'api_news')]
 final class NewsApiController extends AbstractController
 {
     #[Route('', name: '')]
-    public function index(NewsRepository $newsRepository, NewsApiService $newsApiService): Response
+    public function index(NewsRepository $newsRepository, NewsApiService $newsApiService, CacheInterface $cache): Response
     {
-        $news = $newsRepository->findBy([], ['createdAt' => 'DESC']);
+        $data = $cache->get('api_news', function (ItemInterface $item) use ($newsRepository, $newsApiService){
+            $item->expiresAfter(60);
 
-        $data = [];
-        foreach ($news as $newsItem) {
-            $data['items'][] = $newsApiService->serializeNews($newsItem);
-        }
+            $news = $newsRepository->findBy([], ['createdAt' => 'DESC']);
+            $data = [];
+            foreach ($news as $newsItem) {
+                $data['items'][] = $newsApiService->serializeNews($newsItem);
+            }
+            return $data;
+        });
+
 
         return new JsonResponse($data, 200);
     }
