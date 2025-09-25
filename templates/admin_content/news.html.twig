@@ -31,15 +31,33 @@
                         {% for newsItem in news %}
                             <article class="news-card">
                                 <div class="news-content">
+                                    {% if newsItem.properties is defined and newsItem.properties.image is defined and newsItem.properties.image.value is not empty %}
+                                    <div class="news-image">
+                                        <img
+                                            src="{{ asset('uploads/news/' ~ newsItem.properties.image.value) }}"
+                                            alt="{{ newsItem.title }}"
+                                            onerror="this.onerror=null; this.src='{{ asset('assets/images/placeholder.jpg') }}'"
+                                            class="news-thumbnail"
+                                        >
+                                    </div>
+                                    {% else %}
+                                    <div class="news-image">
+                                        <img
+                                            src="{{ asset('assets/images/placeholder.jpg') }}"
+                                            alt="Изображение отсутствует"
+                                            class="news-thumbnail"
+                                        >
+                                    </div>
+                                    {% endif %}
                                     <div class="news-main">
                                         <div>
                                             <h2 class="news-title">{{ newsItem.title }}</h2>
                                             <p class="news-text">{{ newsItem.text|striptags|slice(0, 100) }}{% if newsItem.text|length > 100 %}...{% endif %}</p>
-                                            {% if newsItem.properties is defined and newsItem.properties is not empty %}
+                                            {% if newsItem.properties is defined and newsItem.properties.tags is defined and newsItem.properties.tags.value is not empty %}
                                                 <div class="news-properties">
-                                                    {% for property in newsItem.properties %}
-                                                        <span class="property-tag" title="{{ property.name }} ({{ property.type }})">
-                                                            {{ property.value }}
+                                                    {% for tag in newsItem.properties.tags.value|split(',') %}
+                                                        <span class="property-tag" title="{{ tag }}">
+                                                            {{ tag }}
                                                         </span>
                                                     {% endfor %}
                                                 </div>
@@ -47,9 +65,16 @@
                                         </div>
                                     </div>
                                     <div class="news-meta">
-                                        <time datetime="{{ newsItem.createdAt|date('Y-m-d\TH:i:s') }}" title="{{ newsItem.createdAt|date('d.m.Y H:i:s') }}">
-                                            <i class="far fa-calendar-alt"></i> {{ newsItem.createdAt|date('d.m.Y H:i') }}
-                                        </time>
+                                        <div class="news-time">
+                                            <time datetime="{{ newsItem.createdAt|date('Y-m-d\TH:i:s') }}" title="{{ newsItem.createdAt|date('d.m.Y H:i:s') }}">
+                                                <i class="far fa-calendar-alt"></i> {{ newsItem.createdAt|date('d.m.Y H:i') }}
+                                            </time>
+                                        </div>
+                                        <div class="news-source">
+                                            {% if newsItem.properties is defined and newsItem.properties.source is defined and newsItem.properties.source.value is not empty %}
+                                                {{ newsItem.properties.source.name }}: {{ newsItem.properties.source.value }}
+                                            {% endif %}
+                                        </div>
                                         <div class="news-id">#{{ newsItem.id }}</div>
                                     </div>
                                 </div>
