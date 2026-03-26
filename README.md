@@ -1,6 +1,6 @@
 1. Скопировать env
 ```
-cp .env.example.env
+cp .env.example .env
 ```
 
 2. Прописать в env DATABASE_URL и MESSENGER_TRANSPORT_DSN
