@@ -41,7 +41,7 @@ final class AdminContentPropertiesController extends AbstractController
         if ($request->isMethod('POST')) {
             $this->handleFormSubmission($propertyDefinition, $request);
 
-            $existing = $this->propertyDefinitionRepository->findOneBy(['name' => $propertyDefinition->getCode()]);
+            $existing = $this->propertyDefinitionRepository->findOneBy(['code' => $propertyDefinition->getCode()]);
             if ($existing) {
                 $this->addFlash('error', 'Свойство с таким кодом уже существует');
                 return $this->redirectToRoute('admin_properties_new');
@@ -72,7 +72,7 @@ final class AdminContentPropertiesController extends AbstractController
         if ($request->isMethod('POST')) {
             $this->handleFormSubmission($propertyDefinition, $request);
 
-            $existing = $this->propertyDefinitionRepository->findOneBy(['name' => $propertyDefinition->getCode()]);
+            $existing = $this->propertyDefinitionRepository->findOneBy(['code' => $propertyDefinition->getCode()]);
             if ($existing && $existing->getId() !== $id) {
                 $this->addFlash('error', 'Свойство с таким кодом уже существует');
                 return $this->redirectToRoute('admin_properties_edit', ['id' => $id]);
