@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Exception\InvalidArgumentException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -72,6 +73,7 @@ final class NewsApiController extends AbstractController
     }
 
     #[Route('', name: '_create', methods: ['POST'])]
+    #[IsGranted('ROLE_CONTENT_MANAGER')]
     #[OA\RequestBody(content: new OA\MediaType(
         mediaType: 'application/json',
         schema: new OA\Schema(ref: new Model(type: NewsDto::class)))
@@ -92,6 +94,7 @@ final class NewsApiController extends AbstractController
     }
 
     #[Route('/{id}', name: '_update', methods: ['PUT'])]
+    #[IsGranted('ROLE_CONTENT_MANAGER')]
     #[OA\Parameter(
         name: 'id',
         description: 'ID новости',
@@ -119,6 +122,7 @@ final class NewsApiController extends AbstractController
     }
 
     #[Route('/{id}', name: '_delete', methods: ['DELETE'])]
+    #[IsGranted('ROLE_CONTENT_MANAGER')]
     #[OA\Parameter(
         name: 'id',
         description: 'ID новости',
