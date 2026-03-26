@@ -107,7 +107,7 @@ final class NewsApiController extends AbstractController
         schema: new OA\Schema(ref: new Model(type: NewsDto::class)))
     )]
     #[OA\Response(
-        response: 201,
+        response: 200,
         description: 'ОК',
     )]
     public function update(int $id, Request $request, NewsApiService $newsApiService): Response
@@ -118,7 +118,7 @@ final class NewsApiController extends AbstractController
             return new JsonResponse(['error' => $e->getMessage()], 400);
         }
 
-        return new JsonResponse('ОК', 201);
+        return new JsonResponse('ОК', 200);
     }
 
     #[Route('/{id}', name: '_delete', methods: ['DELETE'])]
@@ -131,8 +131,8 @@ final class NewsApiController extends AbstractController
         schema: new OA\Schema(type: 'integer')
     )]
     #[OA\Response(
-        response: 201,
-        description: 'ОК',
+        response: 204,
+        description: 'No Content',
     )]
     public function delete(int $id, NewsApiService $newsApiService): Response
     {
@@ -142,6 +142,6 @@ final class NewsApiController extends AbstractController
             return new JsonResponse(['error' => $e->getMessage()], 400);
         }
 
-        return new JsonResponse('ОК', 201);
+        return new JsonResponse(null, 204);
     }
 }
