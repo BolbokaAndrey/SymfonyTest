@@ -38,7 +38,7 @@ class PropertyDefinition
     /**
      * @var Collection<int, PropertyValue>
      */
-    #[ORM\OneToMany(targetEntity: PropertyValue::class, mappedBy: '�propertyDefinition')]
+    #[ORM\OneToMany(targetEntity: PropertyValue::class, mappedBy: 'propertyDefinition')]
     private Collection $propertyValues;
 
     public function __construct()
