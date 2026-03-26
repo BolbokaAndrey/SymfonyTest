@@ -4,8 +4,9 @@ namespace App\Service;
 
 use App\Dto\NewsDto;
 use App\Entity\News;
-use App\Entity\PropertyDefinition;
 use App\Entity\PropertyValue;
+use App\Repository\NewsRepository;
+use App\Repository\PropertyDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -18,6 +19,8 @@ readonly class NewsApiService
         private SerializerInterface $serializer,
         private ValidatorInterface $validator,
         private EntityManagerInterface $entityManager,
+        private PropertyDefinitionRepository $propertyDefinitionRepository,
+        private NewsRepository $newsRepository,
     ){
     }
 
@@ -64,17 +67,17 @@ readonly class NewsApiService
 
         $property = new PropertyValue();
         $property->setValue($data['source'] ?? null);
-        $property->setPropertyDefinition($this->entityManager->getRepository(PropertyDefinition::class)->findOneBy(['code' => 'source']));
+        $property->setPropertyDefinition($this->propertyDefinitionRepository->findOneBy(['code' => 'source']));
         $news->addProperty($property);
 
         $property = new PropertyValue();
         $property->setValue($data['image'] ?? null);
-        $property->setPropertyDefinition($this->entityManager->getRepository(PropertyDefinition::class)->findOneBy(['code' => 'image']));
+        $property->setPropertyDefinition($this->propertyDefinitionRepository->findOneBy(['code' => 'image']));
         $news->addProperty($property);
 
         $property = new PropertyValue();
         $property->setValue(implode(',', $data['tags'] ?? []));
-        $property->setPropertyDefinition($this->entityManager->getRepository(PropertyDefinition::class)->findOneBy(['code' => 'tags']));
+        $property->setPropertyDefinition($this->propertyDefinitionRepository->findOneBy(['code' => 'tags']));
         $news->addProperty($property);
 
         $this->entityManager->persist($news);
@@ -83,7 +86,7 @@ readonly class NewsApiService
 
     public function updateNews(int $id, Request $request): void
     {
-        $news = $this->entityManager->getRepository(News::class)->find($id);
+        $news = $this->newsRepository->find($id);
         if (!$news) {
             throw new InvalidArgumentException('Новость не найдена', 404);
         }
@@ -116,7 +119,7 @@ readonly class NewsApiService
 
     public function deleteNews(int $id): void
     {
-        $news = $this->entityManager->getRepository(News::class)->find($id);
+        $news = $this->newsRepository->find($id);
         if (!$news) {
             throw new InvalidArgumentException('Новость не найдена', 404);
         }
