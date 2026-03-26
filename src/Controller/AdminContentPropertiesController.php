@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/properties', name: 'admin_properties')]
 final class AdminContentPropertiesController extends AbstractController
@@ -21,9 +22,9 @@ final class AdminContentPropertiesController extends AbstractController
     }
 
     #[Route('', name: '')]
+    #[IsGranted('ROLE_CONTENT_MANAGER')]
     public function index(): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_CONTENT_MANAGER');
         $properties = $this->propertyDefinitionRepository->findAll();
 
         return $this->render('admin_content_properties/index.html.twig', [
@@ -33,9 +34,9 @@ final class AdminContentPropertiesController extends AbstractController
     }
 
     #[Route('/new', name: '_new')]
+    #[IsGranted('ROLE_ADMIN')]
     public function newProperty(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $propertyDefinition = new PropertyDefinition();
 
         if ($request->isMethod('POST')) {
@@ -65,9 +66,9 @@ final class AdminContentPropertiesController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: '_edit')]
+    #[IsGranted('ROLE_ADMIN')]
     public function edit(int $id, Request $request): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $propertyDefinition = $this->propertyDefinitionRepository->find($id);
         if (!$propertyDefinition) {
             throw $this->createNotFoundException('Свойство не найдено');
@@ -99,10 +100,9 @@ final class AdminContentPropertiesController extends AbstractController
     }
 
     #[Route('/{id}/delete', name: '_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function deleteProperty(int $id, Request $request): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         if (!$this->isCsrfTokenValid('delete' . $id, $request->request->get('_token'))) {
             throw $this->createAccessDeniedException('Invalid CSRF token');
         }
