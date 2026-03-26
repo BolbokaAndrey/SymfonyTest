@@ -51,27 +51,29 @@ readonly class NewsApiService
 
     public function createNews(Request $request): void
     {
+        $data = $request->toArray();
+
         $news = new News();
-        $news->setTitle($request->request->get('title'));
-        $news->setText($request->request->get('text'));
-        $news->setCreatedAt(new \DateTimeImmutable($request->request->get('createdAt')));
+        $news->setTitle($data['title'] ?? null);
+        $news->setText($data['text'] ?? null);
+        $news->setCreatedAt(new \DateTimeImmutable($data['createdAt'] ?? 'now'));
         $errors = $this->validator->validate($news);
         if (count($errors) > 0) {
             throw new InvalidArgumentException('Ошибка валидации', 400);
         }
 
         $property = new PropertyValue();
-        $property->setValue($request->request->get('source'));
+        $property->setValue($data['source'] ?? null);
         $property->setPropertyDefinition($this->entityManager->getRepository(PropertyDefinition::class)->findOneBy(['code' => 'source']));
         $news->addProperty($property);
 
         $property = new PropertyValue();
-        $property->setValue($request->request->get('image'));
+        $property->setValue($data['image'] ?? null);
         $property->setPropertyDefinition($this->entityManager->getRepository(PropertyDefinition::class)->findOneBy(['code' => 'image']));
         $news->addProperty($property);
 
         $property = new PropertyValue();
-        $property->setValue(implode(',', $request->request->all('tags')));
+        $property->setValue(implode(',', $data['tags'] ?? []));
         $property->setPropertyDefinition($this->entityManager->getRepository(PropertyDefinition::class)->findOneBy(['code' => 'tags']));
         $news->addProperty($property);
 
@@ -86,9 +88,11 @@ readonly class NewsApiService
             throw new InvalidArgumentException('Новость не найдена', 404);
         }
 
-        $news->setTitle($request->request->get('title'));
-        $news->setText($request->request->get('text'));
-        $news->setCreatedAt(new \DateTimeImmutable($request->request->get('createdAt')));
+        $data = $request->toArray();
+
+        $news->setTitle($data['title'] ?? null);
+        $news->setText($data['text'] ?? null);
+        $news->setCreatedAt(new \DateTimeImmutable($data['createdAt'] ?? 'now'));
         $errors = $this->validator->validate($news);
         if (count($errors) > 0) {
             throw new InvalidArgumentException('Ошибка валидации', 400);
@@ -96,15 +100,15 @@ readonly class NewsApiService
 
         $news->getProperties()->findFirst(function ($key, $property) {
             return $property->getPropertyDefinition()->getCode() === 'source';
-        })?->setValue($request->request->get('source'));
+        })?->setValue($data['source'] ?? null);
 
         $news->getProperties()->findFirst(function ($key, $property) {
             return $property->getPropertyDefinition()->getCode() === 'image';
-        })?->setValue($request->request->get('image'));
+        })?->setValue($data['image'] ?? null);
 
         $news->getProperties()->findFirst(function ($key, $property) {
             return $property->getPropertyDefinition()->getCode() === 'tags';
-        })?->setValue(implode(',', $request->request->all('tags')));
+        })?->setValue(implode(',', $data['tags'] ?? []));
 
         $this->entityManager->persist($news);
         $this->entityManager->flush();
