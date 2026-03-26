@@ -207,9 +207,13 @@ final class AdminContentController extends AbstractController
         ]);
     }
 
-    #[Route('/news/{id}/delete', name: '_news_delete')]
-    public function delete(int $id): Response
+    #[Route('/news/{id}/delete', name: '_news_delete', methods: ['POST'])]
+    public function delete(int $id, Request $request): Response
     {
+        if (!$this->isCsrfTokenValid('delete' . $id, $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token');
+        }
+
         $news = $this->newsRepository->find($id);
 
         if (!$news) {
