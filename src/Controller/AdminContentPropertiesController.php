@@ -90,10 +90,15 @@ final class AdminContentPropertiesController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/delete', name: '_delete')]
-    public function deleteProperty(int $id): Response
+    #[Route('/{id}/delete', name: '_delete', methods: ['POST'])]
+    public function deleteProperty(int $id, Request $request): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        if (!$this->isCsrfTokenValid('delete' . $id, $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token');
+        }
+
         $propertyDefinition = $this->propertyDefinitionRepository->find($id);
 
         if (!$propertyDefinition) {
