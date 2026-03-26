@@ -93,6 +93,10 @@ final class AdminContentController extends AbstractController
         $property = new PropertyValue();
 
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('news_form', $request->request->get('_csrf_token'))) {
+                throw $this->createAccessDeniedException('Invalid CSRF token');
+            }
+
             $news->setTitle($request->request->get('title'));
             $news->setText($request->request->get('text'));
             $news->setCreatedAt(new \DateTimeImmutable($request->request->get('createdAt')));
@@ -153,6 +157,10 @@ final class AdminContentController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('news_form', $request->request->get('_csrf_token'))) {
+                throw $this->createAccessDeniedException('Invalid CSRF token');
+            }
+
             $news->setTitle($request->request->get('title'));
             $news->setText($request->request->get('text'));
             $news->setCreatedAt(new \DateTimeImmutable($request->request->get('createdAt')));

@@ -39,6 +39,10 @@ final class AdminContentPropertiesController extends AbstractController
         $propertyDefinition = new PropertyDefinition();
 
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('property_form', $request->request->get('_csrf_token'))) {
+                throw $this->createAccessDeniedException('Invalid CSRF token');
+            }
+
             $this->handleFormSubmission($propertyDefinition, $request);
 
             $existing = $this->propertyDefinitionRepository->findOneBy(['code' => $propertyDefinition->getCode()]);
@@ -70,6 +74,10 @@ final class AdminContentPropertiesController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('property_form', $request->request->get('_csrf_token'))) {
+                throw $this->createAccessDeniedException('Invalid CSRF token');
+            }
+
             $this->handleFormSubmission($propertyDefinition, $request);
 
             $existing = $this->propertyDefinitionRepository->findOneBy(['code' => $propertyDefinition->getCode()]);

@@ -20,6 +20,7 @@
 
             <div class="card">
                 <form method="post" class="property-form">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('property_form') }}">
                     <div class="form-group">
                         <label for="name">Название *</label>
                         <input type="text" id="name" name="name"
