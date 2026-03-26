@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Service\NotificationService;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -87,6 +88,7 @@ final class AdminContentController extends AbstractController
     }
 
     #[Route('/news/new', name: '_news_new')]
+    #[IsGranted('ROLE_CONTENT_MANAGER')]
     public function new(Request $request): Response
     {
         $news = new News();
@@ -149,6 +151,7 @@ final class AdminContentController extends AbstractController
     }
 
     #[Route('/news/{id}/edit', name: '_news_edit')]
+    #[IsGranted('ROLE_CONTENT_MANAGER')]
     public function edit(int $id, Request $request): Response
     {
         $news = $this->newsRepository->find($id);
@@ -216,6 +219,7 @@ final class AdminContentController extends AbstractController
     }
 
     #[Route('/news/{id}/delete', name: '_news_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_CONTENT_MANAGER')]
     public function delete(int $id, Request $request): Response
     {
         if (!$this->isCsrfTokenValid('delete' . $id, $request->request->get('_token'))) {
