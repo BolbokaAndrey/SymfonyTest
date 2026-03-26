@@ -43,7 +43,7 @@ readonly class NewsApiService
             $news->getCreatedAt()->format('Y-m-d H:i:s'),
             $source,
             $image,
-            explode(',', $tags),
+            $tags ? explode(',', $tags) : [],
         );
 
         return $this->serializer->normalize($dto);
