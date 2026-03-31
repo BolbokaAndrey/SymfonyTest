@@ -32,6 +32,7 @@ final class AdminContentController extends AbstractController
         private readonly PropertyDefinitionRepository $propertyDefinitionRepository,
         private readonly SluggerInterface $slugger,
         private readonly NotificationService $notificationService,
+        private readonly CacheInterface $cache,
     )
     {
     }
@@ -88,11 +89,9 @@ final class AdminContentController extends AbstractController
     }
 
     #[Route('/news/new', name: '_news_new')]
-    #[IsGranted('ROLE_CONTENT_MANAGER')]
     public function new(Request $request): Response
     {
         $news = new News();
-        $property = new PropertyValue();
 
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('news_form', $request->request->get('_csrf_token'))) {
@@ -114,24 +113,35 @@ final class AdminContentController extends AbstractController
             $tags = array_filter($tags, function($tag) {
                 return !empty(trim($tag));
             });
-            $prop = new PropertyValue();
-            $prop->setValue(implode(',', $tags));
-            $prop->setPropertyDefinition($this->propertyDefinitionRepository->findOneBy(['code' => 'tags']));
-            $this->entityManager->persist($prop);
-            $news->addProperty($prop);
+            if (!empty($tags)) {
+                $tagsDefinition = $this->propertyDefinitionRepository->findOneBy(['code' => 'tags']);
+                if ($tagsDefinition) {
+                    $tagsProp = new PropertyValue();
+                    $tagsProp->setValue(implode(',', $tags));
+                    $tagsProp->setPropertyDefinition($tagsDefinition);
+                    $this->entityManager->persist($tagsProp);
+                    $news->addProperty($tagsProp);
+                }
+            }
 
             // Handle source property
             $sourceValue = $request->request->get('source');
             if ($sourceValue) {
                 $sourceDefinition = $this->propertyDefinitionRepository->findOneBy(['code' => 'source']);
-                $property->setValue($sourceValue);
-                $property->setPropertyDefinition($sourceDefinition);
-                $news->addProperty($property);
-                $this->entityManager->persist($property);
+                if ($sourceDefinition) {
+                    $sourceProp = new PropertyValue();
+                    $sourceProp->setValue($sourceValue);
+                    $sourceProp->setPropertyDefinition($sourceDefinition);
+                    $this->entityManager->persist($sourceProp);
+                    $news->addProperty($sourceProp);
+                }
             }
 
             $this->entityManager->persist($news);
             $this->entityManager->flush();
+
+            // Invalidate cache
+            $this->cache->delete('news');
 
             // Send notification about new news
             $this->notificationService->notifyAboutNewNews(
@@ -151,7 +161,6 @@ final class AdminContentController extends AbstractController
     }
 
     #[Route('/news/{id}/edit', name: '_news_edit')]
-    #[IsGranted('ROLE_CONTENT_MANAGER')]
     public function edit(int $id, Request $request): Response
     {
         $news = $this->newsRepository->find($id);
@@ -194,20 +203,49 @@ final class AdminContentController extends AbstractController
             }
 
             $tagsValue = $request->request->all('tags');
-            if ($tagsValue) {
-                $news->getProperties()->filter(function ($property) {
+            if (!empty($tagsValue)) {
+                $tagsProperty = $news->getProperties()->filter(function ($property) {
                     return $property->getPropertyDefinition()->getCode() === 'tags';
-                })->first()->setValue(implode(',', $tagsValue));
+                })->first();
+                if ($tagsProperty) {
+                    $tagsProperty->setValue(implode(',', $tagsValue));
+                } else {
+                    $tagsDefinition = $this->propertyDefinitionRepository->findOneBy(['code' => 'tags']);
+                    if ($tagsDefinition) {
+                        $newTagsProp = new PropertyValue();
+                        $newTagsProp->setValue(implode(',', $tagsValue));
+                        $newTagsProp->setPropertyDefinition($tagsDefinition);
+                        $this->entityManager->persist($newTagsProp);
+                        $news->addProperty($newTagsProp);
+                    }
+                }
             }
 
             $sourceValue = $request->request->get('source');
+            $sourceProperty = $news->getProperties()->filter(function ($property) {
+                return $property->getPropertyDefinition()->getCode() === 'source';
+            })->first();
             if ($sourceValue) {
-                $news->getProperties()->filter(function ($property) {
-                    return $property->getPropertyDefinition()->getCode() === 'source';
-                })->first()->setValue($sourceValue);
+                if ($sourceProperty) {
+                    $sourceProperty->setValue($sourceValue);
+                } else {
+                    $sourceDefinition = $this->propertyDefinitionRepository->findOneBy(['code' => 'source']);
+                    if ($sourceDefinition) {
+                        $newSourceProp = new PropertyValue();
+                        $newSourceProp->setValue($sourceValue);
+                        $newSourceProp->setPropertyDefinition($sourceDefinition);
+                        $this->entityManager->persist($newSourceProp);
+                        $news->addProperty($newSourceProp);
+                    }
+                }
             }
 
+            $this->entityManager->persist($news);
             $this->entityManager->flush();
+
+            // Invalidate cache
+            $this->cache->delete('news');
+
             $this->addFlash('success', 'Новость успешно обновлена');
             return $this->redirectToRoute('admin_content_news');
         }
@@ -219,7 +257,6 @@ final class AdminContentController extends AbstractController
     }
 
     #[Route('/news/{id}/delete', name: '_news_delete', methods: ['POST'])]
-    #[IsGranted('ROLE_CONTENT_MANAGER')]
     public function delete(int $id, Request $request): Response
     {
         if (!$this->isCsrfTokenValid('delete' . $id, $request->request->get('_token'))) {
@@ -234,6 +271,9 @@ final class AdminContentController extends AbstractController
 
         $this->entityManager->remove($news);
         $this->entityManager->flush();
+
+        // Invalidate cache
+        $this->cache->delete('news');
 
         $this->addFlash('success', 'Новость успешно удалена');
         return $this->redirectToRoute('admin_content_news');
