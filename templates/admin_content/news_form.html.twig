@@ -93,6 +93,7 @@
                     <div class="form-group">
                         <label>Теги</label>
                         <div class="tags-container" id="tagsContainer">
+                            {% set tagsDisplayed = false %}
                             {% for property in news.properties|default([]) %}
                                 {% if property.propertyDefinition.code == 'tags' %}
                                     {% set tags = property.value|split(',') %}
@@ -104,8 +105,17 @@
                                             </button>
                                         </div>
                                     {% endfor %}
+                                    {% set tagsDisplayed = true %}
                                 {% endif %}
                             {% endfor %}
+                            {% if not tagsDisplayed %}
+                                <div class="tag-row">
+                                    <input type="text" name="tags[]" value="" class="form-control tag-input" placeholder="Введите тег">
+                                    <button type="button" class="btn-remove-tag" onclick="removeTag(this)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            {% endif %}
                         </div>
                         <button type="button" class="btn btn-secondary btn-sm btn-add-tag" onclick="addTag()">
                             <i class="fas fa-plus"></i> Добавить тег

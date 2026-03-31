@@ -72,7 +72,7 @@
                                         </div>
                                         <div class="news-source">
                                             {% if newsItem.properties is defined and newsItem.properties.source is defined and newsItem.properties.source.value is not empty %}
-                                                {{ newsItem.properties.source.name }}: {{ newsItem.properties.source.value }}
+                                                Источник: {{ newsItem.properties.source.value }}
                                             {% endif %}
                                         </div>
                                         <div class="news-id">#{{ newsItem.id }}</div>
